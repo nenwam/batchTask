@@ -1,21 +1,39 @@
 import React from "react"
+import mondaySdk from "monday-sdk-js";
 import { Checkbox, Label, Divider, IconButton } from "monday-ui-react-core"
 import { Erase } from "monday-ui-react-core/icons" 
 import { useState, useEffect } from "react";
 
+const monday = mondaySdk();
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
+
 const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
     const [isChecked, setIsChecked] = useState(false);
+    const [context, setContext] = useState();
+
+    useEffect(() => {
+        // Notice this method notifies the monday platform that user gains a first value in an app.
+        // Read more about it here: https://developer.monday.com/apps/docs/mondayexecute#value-created-for-user/
+        monday.execute("valueCreatedForUser");
+    
+        // TODO: set up event listeners, Here`s an example, read more here: https://developer.monday.com/apps/docs/mondaylisten/
+        monday.listen("context", (res) => {
+          // console.log("res: ", res)
+          setContext(res.data);
+        });
+        
+      }, [context]);
 
     useEffect(() => {
         // Read isChecked state from localStorage when the component mounts
-        const storedIsChecked = localStorage.getItem(`isChecked-${itemName}`);
+        const storedIsChecked = localStorage.getItem(`isChecked-${itemName}_${context.itemId}`);
         if (storedIsChecked !== null) {
           setIsChecked(JSON.parse(storedIsChecked));
         }
     
         // Save isChecked state to localStorage whenever it changes
         return () => {
-          localStorage.setItem(`isChecked-${itemName}`, JSON.stringify(isChecked));
+          localStorage.setItem(`isChecked-${itemName}_${context.itemId}`, JSON.stringify(isChecked));
         };
       }, [isChecked, itemName]);
 
