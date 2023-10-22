@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 
-const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction}) => {
+const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction, resetTotalFunction}) => {
     const [context, setContext] = useState();
     const [colOptions, setColOptions] = useState(JSON.parse(localStorage.getItem('colOptions')) || [])
 
@@ -91,6 +91,11 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
 
     return (
         <div className="container">
+            <div className="row pb-3">
+                <div className="col">
+                    <Button onClick={resetTotalFunction} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Reset Total</Button>
+                </div>
+            </div>
             <div className="row">
                 <div className="col">
                     <h4>Enter Batches</h4>
@@ -101,7 +106,7 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
                             <h4>Total</h4>
                         </div> */}
                         <div className="col">
-                        <Label text={totalCount}></Label>
+                            <Label text={totalCount}></Label>
                         </div>
                     </div>
                     
