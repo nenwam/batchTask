@@ -33,6 +33,10 @@ const App = () => {
     console.log("Option: ", selectedOption)
   }
 
+  const handleTotalReset = () => {
+    setTotalCount(0)
+  }
+
   const handleOptionsSelection = (evt) => {
     setSelectedOption(evt) 
     localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
@@ -170,7 +174,8 @@ const App = () => {
             countValue={countInput}
             totalCount={totalCount} 
             dropdownHandler={evt => handleOptionsSelection(evt)}
-            clickFunction={handleInput}>
+            clickFunction={handleInput}
+            resetTotalFunction={handleTotalReset}>
           </ListInput>
         </div>
         <Divider></Divider>
