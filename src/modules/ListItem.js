@@ -1,14 +1,10 @@
 import React from "react"
 import { Checkbox, Label, Divider, IconButton } from "monday-ui-react-core"
 import { Erase } from "monday-ui-react-core/icons" 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
     const [isChecked, setIsChecked] = useState(false);
-
-    const getSome = () => {
-        console.log("test")
-    }
 
 
     return (
