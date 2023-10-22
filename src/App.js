@@ -150,7 +150,7 @@ const App = () => {
 
   useEffect(() => {
     localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
-    console.log("Option: ", selectedOption)
+    console.log("Option: ", selectedOption.value)
   }, [selectedOption]);
 
   useEffect(() => {
@@ -178,7 +178,7 @@ const App = () => {
             dropdownHandler={evt => handleOptionsSelection(evt)}
             clickFunction={handleInput}
             resetTotalFunction={handleTotalReset}
-            disabledCheck={selectedOption.value ? false : true }>
+            disabledCheck={selectedOption.value !== undefined ? false : true }>
           </ListInput>
         </div>
         <Divider></Divider>
