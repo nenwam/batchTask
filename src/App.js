@@ -15,12 +15,12 @@ monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIj
 
 const App = () => {
   const [context, setContext] = useState();
-  const [listItems, setListItems] = useState([])
+  const [listItems, setListItems] = useState(() => JSON.parse(localStorage.getItem('listItems')) || []);
   const [nameInput, setNameInput] = useState("")
   const [countInput, setCountInput] = useState()
-  const [totalCount, setTotalCount] = useState(0)
+  const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalCount')) || 0);
   // const [colOptions, setColOptions] = useState([])
-  const [selectedOption, setSelectedOption] = useState({})  
+  const [selectedOption, setSelectedOption] = useState(() => JSON.parse(localStorage.getItem('selectedOption')) || {}); 
 
   const handleInput = () => {
     setTotalCount(totalCount + parseInt(countInput))
@@ -132,6 +132,18 @@ const App = () => {
         });
     }
   }, [totalCount, selectedOption]);
+
+  useEffect(() => {
+    localStorage.setItem('listItems', JSON.stringify(listItems));
+  }, [listItems]);
+
+  useEffect(() => {
+    localStorage.setItem('totalCount', totalCount.toString());
+  }, [totalCount]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
+  }, [selectedOption]);
 
 
   
