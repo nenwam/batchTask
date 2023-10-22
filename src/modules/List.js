@@ -1,6 +1,5 @@
 import React from "react"
 import { Box } from "monday-ui-react-core"
-import ListItem from "./ListItem.js"
 
 const List = ({items}) => {
 
