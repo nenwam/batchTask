@@ -8,7 +8,11 @@ monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIj
 
 const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction}) => {
     const [context, setContext] = useState();
-    const [colOptions, setColOptions] = useState([])
+    const [colOptions, setColOptions] = useState(JSON.parse(localStorage.getItem('colOptions')) || [])
+
+    useEffect(() => {
+        localStorage.setItem('colOptions', JSON.stringify(colOptions));
+      }, [colOptions]);
 
     useEffect(() => {
         const contextUnsubscribe = monday.listen("context", (res) => {
