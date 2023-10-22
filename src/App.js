@@ -113,7 +113,7 @@ const App = () => {
     
     // console.log("inputTotal:", parseInt(totalCount))
     
-  }, [listItems, context/*, colOptions*/]);
+  }, [listItems/*, colOptions*/]);
 
   useEffect(() => { // Need to make it so that the add item deletes the previous item input and so that the subitems can be selected rather than just items
     if (selectedOption && context && totalCount != null) {
@@ -131,7 +131,7 @@ const App = () => {
           console.log("Error updating column: ", err);
         });
     }
-  }, [totalCount, selectedOption, context]);
+  }, [totalCount, selectedOption]);
 
 
   
