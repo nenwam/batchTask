@@ -19,7 +19,7 @@ const App = () => {
   const [nameInput, setNameInput] = useState("")
   const [countInput, setCountInput] = useState()
   const [totalCount, setTotalCount] = useState(0)
-  const [colOptions, setColOptions] = useState([])
+  // const [colOptions, setColOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState({})  
 
   const handleInput = () => {
@@ -113,7 +113,7 @@ const App = () => {
     
     // console.log("inputTotal:", parseInt(totalCount))
     
-  }, [listItems, colOptions]);
+  }, [listItems, context/*, colOptions*/]);
 
   useEffect(() => { // Need to make it so that the add item deletes the previous item input and so that the subitems can be selected rather than just items
     if (selectedOption && context && totalCount != null) {
@@ -131,15 +131,7 @@ const App = () => {
           console.log("Error updating column: ", err);
         });
     }
-  }, [totalCount, selectedOption]);
-
-
-
-  //Some example what you can do with context, read more here: https://developer.monday.com/apps/docs/mondayget#requesting-context-and-settings-data
-  const attentionBoxText = `Hello, your user_id is: ${
-    context ? context.user.id : "still loading"
-  }.
-  Let's start building your amazing app, which will change the world!`;
+  }, [totalCount, selectedOption, context]);
 
 
   
