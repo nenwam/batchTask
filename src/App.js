@@ -20,6 +20,7 @@ const App = () => {
   const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalCount')) || 0);
   // const [colOptions, setColOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState(() => JSON.parse(localStorage.getItem('selectedOption')) || {}); 
+  const [optionSelected, setOptionSelected] = useState(false);
 
   const handleInput = () => {
     setTotalCount(totalCount + parseInt(countInput))
@@ -149,6 +150,7 @@ const App = () => {
 
   useEffect(() => {
     localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
+    console.log("Option: ", selectedOption)
   }, [selectedOption]);
 
   useEffect(() => {
@@ -175,7 +177,8 @@ const App = () => {
             totalCount={totalCount} 
             dropdownHandler={evt => handleOptionsSelection(evt)}
             clickFunction={handleInput}
-            resetTotalFunction={handleTotalReset}>
+            resetTotalFunction={handleTotalReset}
+            disabledCheck={selectedOption.value ? false : true }>
           </ListInput>
         </div>
         <Divider></Divider>

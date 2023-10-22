@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 
-const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction, resetTotalFunction}) => {
+const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction, resetTotalFunction, disabledCheck}) => {
     const [context, setContext] = useState();
     const [colOptions, setColOptions] = useState(JSON.parse(localStorage.getItem('colOptions')) || [])
 
@@ -124,7 +124,7 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
                     <TextField onChange={countHandler} value={countValue} type="number" placeholder="Batch count" />  
                 </div>
                 <div className="col">
-                    <Button onClick={clickFunction} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
+                    <Button disabled={disabledCheck} onClick={clickFunction} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
                 </div>
             </div>
         </div>
