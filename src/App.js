@@ -5,7 +5,6 @@ import mondaySdk from "monday-sdk-js";
 import "monday-ui-react-core/dist/main.css";
 //Explore more Monday React Components here: https://style.monday.com/
 import List from "./modules/List.js"
-import ListItem from "./modules/ListItem.js";
 import ListInput from "./modules/ListInput.js";
 import { Divider } from "monday-ui-react-core"
 
@@ -25,8 +24,10 @@ const App = () => {
   const handleInput = () => {
     setTotalCount(totalCount + parseInt(countInput))
     const uniqueKey = Math.random().toString(36).substr(2, 9);
+    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: nameInput, itemCount: countInput };
     console.log("Key: ", uniqueKey)
-    setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
+    setListItems([...listItems, newItem])
+    // setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
     setNameInput("")
     setCountInput()
     console.log("Option: ", selectedOption)
@@ -38,7 +39,7 @@ const App = () => {
   }
 
   const handleItemDelete = (itemName, itemCount, isChecked) => {
-    setListItems(prevListItems => prevListItems.filter(item => item.key !== itemName));
+    setListItems(prevListItems => prevListItems.filter(item => item.itemName !== itemName));
     setTotalCount(prevTotalCount => {
       if (!isChecked) {
         return prevTotalCount - parseInt(itemCount)
@@ -163,7 +164,7 @@ const App = () => {
         </div>
         <Divider></Divider>
         <div className="col-12">
-          <List items={listItems}></List>
+          <List items={listItems} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></List>
         </div> 
       </div>
     </div>
