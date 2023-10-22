@@ -35,6 +35,7 @@ const App = () => {
 
   const handleOptionsSelection = (evt) => {
     setSelectedOption(evt) 
+    localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
     console.log("Option: ", evt) 
   }
 
@@ -145,6 +146,16 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
   }, [selectedOption]);
+
+  useEffect(() => {
+    const storedSelectedOption = localStorage.getItem('selectedOption');
+    if (storedSelectedOption) {
+      // Set it as the default selected option
+      // You may need to adapt this part to match the data structure of your `Dropdown` component
+      const defaultSelectedOption = JSON.parse(storedSelectedOption);
+      handleOptionsSelection(defaultSelectedOption);
+    }
+  }, [])
 
 
   
