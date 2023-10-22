@@ -1,10 +1,23 @@
 import React from "react"
 import { Checkbox, Label, Divider, IconButton } from "monday-ui-react-core"
 import { Erase } from "monday-ui-react-core/icons" 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
     const [isChecked, setIsChecked] = useState(false);
+
+    useEffect(() => {
+        // Read isChecked state from localStorage when the component mounts
+        const storedIsChecked = localStorage.getItem(`isChecked-${itemName}`);
+        if (storedIsChecked !== null) {
+          setIsChecked(JSON.parse(storedIsChecked));
+        }
+    
+        // Save isChecked state to localStorage whenever it changes
+        return () => {
+          localStorage.setItem(`isChecked-${itemName}`, JSON.stringify(isChecked));
+        };
+      }, [isChecked, itemName]);
 
 
     return (
