@@ -8,10 +8,10 @@ monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIj
 
 const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction, resetTotalFunction, disabledCheck}) => {
     const [context, setContext] = useState();
-    const [colOptions, setColOptions] = useState(JSON.parse(localStorage.getItem('colOptions')) || [])
+    const [colOptions, setColOptions] = useState(JSON.parse(localStorage.getItem('colOptions_' + context.itemId)) || [])
 
     useEffect(() => {
-        localStorage.setItem('colOptions', JSON.stringify(colOptions));
+        localStorage.setItem('colOptions_' + context.itemId, JSON.stringify(colOptions));
       }, [colOptions]);
 
     useEffect(() => {

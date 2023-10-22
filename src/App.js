@@ -14,12 +14,12 @@ monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIj
 
 const App = () => {
   const [context, setContext] = useState();
-  const [listItems, setListItems] = useState(() => JSON.parse(localStorage.getItem('listItems')) || []);
+  const [listItems, setListItems] = useState(() => JSON.parse(localStorage.getItem('listItems_' + context.itemId)) || []);
   const [nameInput, setNameInput] = useState("")
   const [countInput, setCountInput] = useState()
-  const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalCount')) || 0);
+  const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalCount_' + context.itemId)) || 0);
   // const [colOptions, setColOptions] = useState([])
-  const [selectedOption, setSelectedOption] = useState(() => JSON.parse(localStorage.getItem('selectedOption')) || {}); 
+  const [selectedOption, setSelectedOption] = useState(() => JSON.parse(localStorage.getItem('selectedOption_' + context.itemId)) || {}); 
   const [optionSelected, setOptionSelected] = useState(false);
 
   const handleInput = () => {
@@ -40,7 +40,7 @@ const App = () => {
 
   const handleOptionsSelection = (evt) => {
     setSelectedOption(evt) 
-    localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
+    localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("Option: ", evt) 
   }
 
@@ -87,7 +87,7 @@ const App = () => {
 
     // TODO: set up event listeners, Here`s an example, read more here: https://developer.monday.com/apps/docs/mondaylisten/
     monday.listen("context", (res) => {
-      // console.log("res: ", res)
+      console.log("res: ", res)
       setContext(res.data);
     });
 
@@ -141,20 +141,20 @@ const App = () => {
   }, [totalCount, selectedOption]);
 
   useEffect(() => {
-    localStorage.setItem('listItems', JSON.stringify(listItems));
+    localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
   }, [listItems]);
 
   useEffect(() => {
-    localStorage.setItem('totalCount', totalCount.toString());
+    localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
   }, [totalCount]);
 
   useEffect(() => {
-    localStorage.setItem('selectedOption', JSON.stringify(selectedOption));
+    localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("Option: ", selectedOption.value)
   }, [selectedOption]);
 
   useEffect(() => {
-    const storedSelectedOption = localStorage.getItem('selectedOption');
+    const storedSelectedOption = localStorage.getItem('selectedOption_' + context.itemId);
     if (storedSelectedOption) {
       // Set it as the default selected option
       // You may need to adapt this part to match the data structure of your `Dropdown` component
