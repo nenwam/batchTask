@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 
 const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
+const storageInstance = monday.storage.instance;
 
 const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction, resetTotalFunction, disabledCheck}) => {
     const [context, setContext] = useState();
@@ -17,8 +18,11 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
     useEffect(() => {
         const contextUnsubscribe = monday.listen("context", (res) => {
           setContext(res.data);
-          const localColOptions = JSON.parse(localStorage.getItem('colOptions_' + res.data.itemId)) || []
-          setColOptions(localColOptions)
+          storageInstance.getItem('colOptions_' + res.data.itemId).then(response => {
+            setColOptions(JSON.parse(response.data.value) || []);
+          });
+        //   const localColOptions = JSON.parse(localStorage.getItem('colOptions_' + res.data.itemId)) || []
+        //   setColOptions(localColOptions)
         });
       
         // Clean up the subscription when the component unmounts
