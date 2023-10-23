@@ -148,27 +148,42 @@ const App = () => {
   }, [totalCount, selectedOption]);
 
   useEffect(() => {
-    console.log("Context: ", context)
-    // localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
+    if (context) {
+      console.log("Context: ", context)
+      localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
+    }
+    
   }, [listItems]);
 
   useEffect(() => {
-    localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
+    if (context) {
+      console.log("Context: ", context)
+      localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
+    }
+    
   }, [totalCount]);
 
   useEffect(() => {
-    localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
-    console.log("Option: ", selectedOption.value)
+    if (context) {
+      console.log("Context: ", context)
+      localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+      console.log("Option: ", selectedOption.value)
+    }
+    
+    
   }, [selectedOption]);
 
   useEffect(() => {
-    const storedSelectedOption = localStorage.getItem('selectedOption_' + context.itemId);
-    if (storedSelectedOption) {
-      // Set it as the default selected option
-      // You may need to adapt this part to match the data structure of your `Dropdown` component
-      const defaultSelectedOption = JSON.parse(storedSelectedOption);
-      handleOptionsSelection(defaultSelectedOption);
+    if (context) {
+      const storedSelectedOption = localStorage.getItem('selectedOption_' + context.itemId);
+      if (storedSelectedOption) {
+        // Set it as the default selected option
+        // You may need to adapt this part to match the data structure of your `Dropdown` component
+        const defaultSelectedOption = JSON.parse(storedSelectedOption);
+        handleOptionsSelection(defaultSelectedOption);
+      }
     }
+    
   }, [])
 
 
