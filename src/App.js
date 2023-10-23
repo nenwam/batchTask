@@ -45,15 +45,35 @@ const App = () => {
   }
 
   const handleItemDelete = (itemName, itemCount, isChecked) => {
-    setListItems(prevListItems => prevListItems.filter(item => item.itemName !== itemName));
-    setTotalCount(prevTotalCount => {
-      console.log("PrevTotal Count: ", prevTotalCount)
-      if (!isChecked) {
-        return prevTotalCount - parseInt(itemCount)
-      } else if (isChecked) {
-        return prevTotalCount
-      }
+    // setListItems(prevListItems => prevListItems.filter(item => item.itemName !== itemName));
+    // setTotalCount(prevTotalCount => {
+    //   console.log("PrevTotal Count: ", prevTotalCount)
+    //   if (!isChecked) {
+    //     return prevTotalCount - parseInt(itemCount)
+    //   } else if (isChecked) {
+    //     return prevTotalCount
+    //   }
       
+    // });
+    setListItems(prevListItems => {
+      const newListItems = prevListItems.filter(item => item.itemName !== itemName);
+      prevListItems.map(item => console.log(item.itemName))
+      // Update localStorage to store the new list items
+      console.log("New Items", itemName)
+      localStorage.setItem('listItems', JSON.stringify(newListItems));
+      return newListItems;
+    });
+  
+    setTotalCount(prevTotalCount => {
+      let newTotalCount;
+      if (!isChecked) {
+        newTotalCount = prevTotalCount - parseInt(itemCount);
+      } else {
+        newTotalCount = prevTotalCount;
+      }
+      // Update localStorage to store the new total count
+      localStorage.setItem('totalCount', newTotalCount);
+      return newTotalCount;
     });
   }
 
@@ -132,6 +152,7 @@ const App = () => {
 
   useEffect(() => { // Need to make it so that the add item deletes the previous item input and so that the subitems can be selected rather than just items
     if (selectedOption && context && totalCount != null) {
+      console.log("Inner Context: ", selectedOption)
       const query = `mutation {
         change_simple_column_value (board_id: ${context.boardId}, item_id: ${context.itemId}, column_id: "${selectedOption.value}", value: "${JSON.stringify(totalCount)}") {
           id
@@ -154,7 +175,7 @@ const App = () => {
       localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
     }
     
-  }, [listItems/*, context*/]);
+  }, [listItems, context]);
 
   useEffect(() => {
     if (context) {
@@ -162,7 +183,7 @@ const App = () => {
       localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
     }
     
-  }, [totalCount/*, context*/]);
+  }, [totalCount, context]);
 
   useEffect(() => {
     if (context) {
@@ -172,7 +193,7 @@ const App = () => {
     }
     
     
-  }, [selectedOption/*, context*/]);
+  }, [selectedOption, context]);
 
   useEffect(() => {
     if (context) {

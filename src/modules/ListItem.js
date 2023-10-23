@@ -26,16 +26,19 @@ const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
 
     useEffect(() => {
         // Read isChecked state from localStorage when the component mounts
-        const storedIsChecked = localStorage.getItem(`isChecked-${itemName}_${context.itemId}`);
+        console.log("ListItem Context: " , context)
+        const storedIsChecked = context ? localStorage.getItem(`isChecked-${itemName}_${context.itemId}`) : null;
         if (storedIsChecked !== null) {
           setIsChecked(JSON.parse(storedIsChecked));
         }
     
         // Save isChecked state to localStorage whenever it changes
         return () => {
-          localStorage.setItem(`isChecked-${itemName}_${context.itemId}`, JSON.stringify(isChecked));
+            if (context) {
+                localStorage.setItem(`isChecked-${itemName}_${context.itemId}`, JSON.stringify(isChecked));
+            }
         };
-      }, [isChecked, itemName]);
+      }, [isChecked, itemName, context]);
 
 
     return (
