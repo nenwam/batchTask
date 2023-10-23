@@ -11,6 +11,7 @@ import { Divider } from "monday-ui-react-core"
 // Usage of mondaySDK example, for more information visit here: https://developer.monday.com/apps/docs/introduction-to-the-sdk/
 const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
+const storageInstance = monday.storage.instance;
 
 const App = () => {
   const [context, setContext] = useState();
@@ -40,7 +41,8 @@ const App = () => {
 
   const handleOptionsSelection = (evt) => {
     setSelectedOption(evt) 
-    localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+    storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+    // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("Option: ", evt) 
   }
 
@@ -60,7 +62,8 @@ const App = () => {
       prevListItems.map(item => console.log(item.itemName))
       // Update localStorage to store the new list items
       console.log("New Items", itemName)
-      localStorage.setItem('listItems', JSON.stringify(newListItems));
+      storageInstance.setItem('listItems', JSON.stringify(newListItems));
+      // localStorage.setItem('listItems', JSON.stringify(newListItems));
       return newListItems;
     });
   
@@ -72,7 +75,8 @@ const App = () => {
         newTotalCount = prevTotalCount;
       }
       // Update localStorage to store the new total count
-      localStorage.setItem('totalCount', newTotalCount);
+      storageInstance.setItem('totalCount', newTotalCount);
+      // localStorage.setItem('totalCount', newTotalCount);
       return newTotalCount;
     });
   }
@@ -111,12 +115,22 @@ const App = () => {
       console.log("res: ", res)
       setContext(res.data);
 
-      const localListItems = JSON.parse(localStorage.getItem('listItems_' + res.data.itemId)) || []
-      setListItems(localListItems)
-      const localTotalCount = parseInt(localStorage.getItem('totalCount_' + res.data.itemId)) || 0
-      setTotalCount(localTotalCount)
-      const localSelectedOption = JSON.parse(localStorage.getItem('selectedOption_' + res.data.itemId)) || {}
-      setSelectedOption(localSelectedOption)
+      storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
+        setListItems(JSON.parse(response.data.value) || []);
+      });
+      storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
+        setTotalCount(JSON.parse(response.data.value) || []);
+      });
+      storageInstance.getItem('selectedOption_' + res.data.itemId).then(response => {
+        setSelectedOption(JSON.parse(response.data.value) || []);
+      });
+
+      // const localListItems = JSON.parse(localStorage.getItem('listItems_' + res.data.itemId)) || []
+      // setListItems(localListItems)
+      // const localTotalCount = parseInt(localStorage.getItem('totalCount_' + res.data.itemId)) || 0
+      // setTotalCount(localTotalCount)
+      // const localSelectedOption = JSON.parse(localStorage.getItem('selectedOption_' + res.data.itemId)) || {}
+      // setSelectedOption(localSelectedOption)
     });
 
     if (context) {
@@ -172,7 +186,8 @@ const App = () => {
   useEffect(() => {
     if (context) {
       console.log("Context: ", context)
-      localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
+      storageInstance.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
+      // localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
     }
     
   }, [listItems, context]);
@@ -180,7 +195,8 @@ const App = () => {
   useEffect(() => {
     if (context) {
       console.log("Context: ", context)
-      localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
+      storageInstance.setItem('totalCount_' + context.itemId, totalCount.toString());
+      // localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
     }
     
   }, [totalCount, context]);
@@ -188,7 +204,8 @@ const App = () => {
   useEffect(() => {
     if (context) {
       console.log("Context: ", context)
-      localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+      storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+      // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
       console.log("Option: ", selectedOption.value)
     }
     
@@ -197,7 +214,8 @@ const App = () => {
 
   useEffect(() => {
     if (context) {
-      const storedSelectedOption = localStorage.getItem('selectedOption_' + context.itemId);
+      // const storedSelectedOption = localStorage.getItem('selectedOption_' + context.itemId);
+      const storedSelectedOption = storageInstance.getItem('selectedOption_' + context.itemId);
       if (storedSelectedOption) {
         // Set it as the default selected option
         // You may need to adapt this part to match the data structure of your `Dropdown` component
