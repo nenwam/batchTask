@@ -148,7 +148,8 @@ const App = () => {
   }, [totalCount, selectedOption]);
 
   useEffect(() => {
-    localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
+    console.log("Context: ", context)
+    // localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
   }, [listItems]);
 
   useEffect(() => {
