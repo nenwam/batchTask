@@ -45,7 +45,7 @@ const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
         <div className="container align-middle">
             <div className="row">
                 <div className="col-5">
-                    <Checkbox className="align-middle" onChange={() => {setIsChecked(!isChecked); handleTotalCount(!isChecked, parseInt(itemCount));}} label={itemName}></Checkbox>
+                    <Checkbox className="align-middle" onChange={() => {setIsChecked(!isChecked); handleTotalCount(isChecked, parseInt(itemCount));}} label={itemName}></Checkbox>
                 </div>                
                 <div className="col-5">
                     <div className="row">
