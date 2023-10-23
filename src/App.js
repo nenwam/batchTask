@@ -14,12 +14,12 @@ monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIj
 
 const App = () => {
   const [context, setContext] = useState();
-  const [listItems, setListItems] = useState(() => JSON.parse(localStorage.getItem('listItems_' + context.itemId)) || []);
+  const [listItems, setListItems] = useState([]);
   const [nameInput, setNameInput] = useState("")
   const [countInput, setCountInput] = useState()
-  const [totalCount, setTotalCount] = useState(() => parseInt(localStorage.getItem('totalCount_' + context.itemId)) || 0);
+  const [totalCount, setTotalCount] = useState(0);
   // const [colOptions, setColOptions] = useState([])
-  const [selectedOption, setSelectedOption] = useState(() => JSON.parse(localStorage.getItem('selectedOption_' + context.itemId)) || {}); 
+  const [selectedOption, setSelectedOption] = useState({}); 
   const [optionSelected, setOptionSelected] = useState(false);
 
   const handleInput = () => {
@@ -89,6 +89,13 @@ const App = () => {
     monday.listen("context", (res) => {
       console.log("res: ", res)
       setContext(res.data);
+
+      const localListItems = JSON.parse(localStorage.getItem('listItems_' + res.data.itemId)) || []
+      setListItems(localListItems)
+      const localTotalCount = parseInt(localStorage.getItem('totalCount_' + res.data.itemId)) || 0
+      setTotalCount(localTotalCount)
+      const localSelectedOption = JSON.parse(localStorage.getItem('selectedOption_' + res.data.itemId)) || {}
+      setSelectedOption(localSelectedOption)
     });
 
     if (context) {
