@@ -38,7 +38,7 @@ const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
                 localStorage.setItem(`isChecked-${itemName}_${context.itemId}`, JSON.stringify(isChecked));
             }
         };
-      }, [isChecked, itemName, context]);
+      }, [itemName, context]);
 
 
     return (
