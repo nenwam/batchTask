@@ -18,7 +18,7 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
     useEffect(() => {
         const contextUnsubscribe = monday.listen("context", (res) => {
           setContext(res.data);
-          storageInstance.getItem('colOptions_' + res.data.itemId).then(response => {
+          storageInstance.getItem(`colOptions_${res.data.boardId}` + res.data.itemId).then(response => {
             setColOptions(JSON.parse(response.data.value) || []);
           });
         //   const localColOptions = JSON.parse(localStorage.getItem('colOptions_' + res.data.itemId)) || []
@@ -86,6 +86,9 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
             })
             console.log("cols: ", cols)
             setColOptions(cols)
+            storageInstance.setItem(`colOptions_${res.data.boardId}`, JSON.stringify(cols)).then((res) => {
+                console.log("colOptions stored in board storage: ", res);
+            });
         }).catch((err) => {
             console.log("Error fetching columns: ", err);
         });
