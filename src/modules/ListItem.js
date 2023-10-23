@@ -22,7 +22,7 @@ const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
           setContext(res.data);
         });
         
-      }, [context]);
+      }, [/*context*/]);
 
     useEffect(() => {
         // Read isChecked state from localStorage when the component mounts
