@@ -116,6 +116,7 @@ const App = () => {
       setContext(res.data);
 
       storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
+        console.log("Response: ", response)
         setListItems(JSON.parse(response.data.value) || []);
       });
       storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
@@ -190,7 +191,7 @@ const App = () => {
       // localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
     }
     
-  }, [listItems, context]);
+  }, [listItems/*, context*/]);
 
   useEffect(() => {
     if (context) {
@@ -199,7 +200,7 @@ const App = () => {
       // localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
     }
     
-  }, [totalCount, context]);
+  }, [totalCount/*, context*/]);
 
   useEffect(() => {
     if (context) {
@@ -210,7 +211,7 @@ const App = () => {
     }
     
     
-  }, [selectedOption, context]);
+  }, [selectedOption/*, context*/]);
 
   useEffect(() => {
     if (context) {
