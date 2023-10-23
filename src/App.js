@@ -128,7 +128,7 @@ const App = () => {
     
     // console.log("inputTotal:", parseInt(totalCount))
     
-  }, [listItems/*, colOptions*/]);
+  }, [/*listItems, colOptions*/]);
 
   useEffect(() => { // Need to make it so that the add item deletes the previous item input and so that the subitems can be selected rather than just items
     if (selectedOption && context && totalCount != null) {
@@ -154,7 +154,7 @@ const App = () => {
       localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
     }
     
-  }, [listItems]);
+  }, [listItems, context]);
 
   useEffect(() => {
     if (context) {
@@ -162,7 +162,7 @@ const App = () => {
       localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
     }
     
-  }, [totalCount]);
+  }, [totalCount, context]);
 
   useEffect(() => {
     if (context) {
@@ -172,7 +172,7 @@ const App = () => {
     }
     
     
-  }, [selectedOption]);
+  }, [selectedOption, context]);
 
   useEffect(() => {
     if (context) {
