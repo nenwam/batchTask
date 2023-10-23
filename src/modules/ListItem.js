@@ -5,7 +5,7 @@ import { Erase } from "monday-ui-react-core/icons"
 import { useState, useEffect } from "react";
 
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni40NTBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.6IFWFt7JJq7-tQjaLIPa2rLB8kGFRxp0bA6lrb564BI");
 
 const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
     const [isChecked, setIsChecked] = useState(false);

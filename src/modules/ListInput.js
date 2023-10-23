@@ -4,7 +4,7 @@ import mondaySdk from "monday-sdk-js";
 import { useState, useEffect } from "react";
 
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni40NTBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.6IFWFt7JJq7-tQjaLIPa2rLB8kGFRxp0bA6lrb564BI");
 const storageInstance = monday.storage.instance;
 
 const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction, resetTotalFunction, disabledCheck}) => {
@@ -61,37 +61,39 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
         //     });
         // })
 
-        if (!context) return;
+        if (context){
+            console.log(context)
 
-
-        console.log(context)
-
-        console.log("Context: ", context)
-        const boardId = context.boardId;
-        
-        const query = `query {
-        boards(ids: ${boardId}) {
-            columns {
-            id
-            title
+            console.log("Context: ", context)
+            const boardId = context.boardId;
+            
+            const query = `query {
+            boards(ids: ${boardId}) {
+                columns {
+                    id
+                    title
+                }
             }
-        }
-        }`;
-        monday.api(query).then((res) => {
-            console.log("res: ", res);
-            const columns = res.data.boards[0].columns;
-            console.log("Columns: ", columns);
-            const cols = columns.map(column => {
-                return {label: column.title, value: column.id}
-            })
-            console.log("cols: ", cols)
-            setColOptions(cols)
-            storageInstance.setItem(`colOptions`, JSON.stringify(cols)).then((res) => {
-                console.log("colOptions stored in board storage: ", res);
+            }`;
+            monday.api(query).then((res) => {
+                console.log("res: ", res);
+                const columns = res.data.boards[0].columns;
+                console.log("Columns: ", columns);
+                const cols = columns.map(column => {
+                    return {label: column.title, value: column.id}
+                })
+                console.log("cols: ", cols)
+                setColOptions(cols)
+                storageInstance.setItem(`colOptions`, JSON.stringify(cols)).then((res) => {
+                    console.log("colOptions stored in board storage: ", res);
+                });
+            }).catch((err) => {
+                console.log("Error fetching columns: ", err);
             });
-        }).catch((err) => {
-            console.log("Error fetching columns: ", err);
-        });
+        } 
+
+
+        
         
         
 

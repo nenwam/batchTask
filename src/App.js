@@ -10,7 +10,7 @@ import { Divider } from "monday-ui-react-core"
 
 // Usage of mondaySDK example, for more information visit here: https://developer.monday.com/apps/docs/introduction-to-the-sdk/
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni40NTBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.6IFWFt7JJq7-tQjaLIPa2rLB8kGFRxp0bA6lrb564BI");
 const storageInstance = monday.storage.instance;
 
 const App = () => {
@@ -168,12 +168,14 @@ const App = () => {
   useEffect(() => { // Need to make it so that the add item deletes the previous item input and so that the subitems can be selected rather than just items
     if (selectedOption && context && totalCount != null) {
       console.log("Inner Context: ", selectedOption)
+      const boardId = context.boardId
+      console.log("using boardID: ", boardId)
       const query = `mutation {
-        change_simple_column_value (board_id: ${context.boardId}, item_id: ${context.itemId}, column_id: "${selectedOption.value}", value: "${JSON.stringify(totalCount)}") {
+        change_simple_column_value (board_id: ${boardId}, item_id: ${context.itemId}, column_id: "${selectedOption.value}", value: "${JSON.stringify(totalCount)}") {
           id
         }
       }`;
-  
+      
       monday.api(query)
         .then((res) => {
           console.log("Column updated successfully: ", res, "with ", totalCount);
@@ -182,7 +184,7 @@ const App = () => {
           console.log("Error updating column: ", err);
         });
     }
-  }, [totalCount, selectedOption]);
+  }, [totalCount, selectedOption, context]);
 
   useEffect(() => {
     if (context) {
