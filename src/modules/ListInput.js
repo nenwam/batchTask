@@ -89,7 +89,7 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
         
 
         
-    }, [context])
+    }, [/*context*/])
 
     return (
         <div className="container">

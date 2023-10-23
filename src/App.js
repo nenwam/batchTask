@@ -47,6 +47,7 @@ const App = () => {
   const handleItemDelete = (itemName, itemCount, isChecked) => {
     setListItems(prevListItems => prevListItems.filter(item => item.itemName !== itemName));
     setTotalCount(prevTotalCount => {
+      console.log("PrevTotal Count: ", prevTotalCount)
       if (!isChecked) {
         return prevTotalCount - parseInt(itemCount)
       } else if (isChecked) {
