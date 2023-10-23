@@ -29,7 +29,7 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
         return () => {
           contextUnsubscribe && contextUnsubscribe.unsubscribe();
         };
-      }, []);
+      }, [colOptions]);
 
     useEffect(() => {
 
