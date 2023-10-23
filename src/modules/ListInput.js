@@ -18,9 +18,9 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
     useEffect(() => {
         const contextUnsubscribe = monday.listen("context", (res) => {
           setContext(res.data);
-          storageInstance.getItem(`colOptions_${res.data.boardId}` + res.data.itemId).then(response => {
-            setColOptions(JSON.parse(response.data.value) || []);
-          });
+        //   storageInstance.getItem(`colOptions` + res.data.itemId).then(response => {
+        //     setColOptions(JSON.parse(response.data.value) || []);
+        //   });
         //   const localColOptions = JSON.parse(localStorage.getItem('colOptions_' + res.data.itemId)) || []
         //   setColOptions(localColOptions)
         });
@@ -86,7 +86,7 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
             })
             console.log("cols: ", cols)
             setColOptions(cols)
-            storageInstance.setItem(`colOptions_${res.data.boardId}`, JSON.stringify(cols)).then((res) => {
+            storageInstance.setItem(`colOptions`, JSON.stringify(cols)).then((res) => {
                 console.log("colOptions stored in board storage: ", res);
             });
         }).catch((err) => {
@@ -133,7 +133,7 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
                     <TextField onChange={countHandler} value={countValue} type="number" placeholder="Batch count" />  
                 </div>
                 <div className="col">
-                    <Button disabled={disabledCheck} onClick={clickFunction} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
+                    <Button onClick={clickFunction} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
                 </div>
             </div>
         </div>
