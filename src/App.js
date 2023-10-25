@@ -23,6 +23,8 @@ const App = () => {
   const [selectedOption, setSelectedOption] = useState({}); 
   const [optionSelected, setOptionSelected] = useState(false);
 
+
+
   const handleInput = () => {
     setTotalCount(totalCount + parseInt(countInput))
     const uniqueKey = Math.random().toString(36).substr(2, 9);
@@ -32,7 +34,7 @@ const App = () => {
     // setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
     setNameInput("")
     setCountInput()
-    console.log("Option: ", selectedOption)
+    console.log("handleInput Option: ", selectedOption)
   }
 
   const handleTotalReset = () => {
@@ -43,7 +45,7 @@ const App = () => {
     setSelectedOption(evt) 
     storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
-    console.log("Option: ", evt) 
+    console.log("handleOptions Option: ", evt) 
   }
 
   const handleItemDelete = (itemName, itemCount, isChecked) => {
@@ -91,7 +93,7 @@ const App = () => {
       }
     })
 
-    console.log("Option: ", selectedOption)  
+    console.log("changeTotal Option: ", selectedOption)  
   }
 
 
@@ -106,23 +108,65 @@ const App = () => {
 
 
   useEffect(() => {
+    console.log("----App.js UseEffect #1----")
     // Notice this method notifies the monday platform that user gains a first value in an app.
     // Read more about it here: https://developer.monday.com/apps/docs/mondayexecute#value-created-for-user/
     monday.execute("valueCreatedForUser");
 
     // TODO: set up event listeners, Here`s an example, read more here: https://developer.monday.com/apps/docs/mondaylisten/
+    // let isMounted = true
+
+    // const handleContext = (res) => {
+
+    //   if (!isMounted) return
+
+    //   console.log("useEffect storage res: ", res)
+    //   setContext(res.data);
+
+    //   storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
+    //     console.log("Item Response: ", response)
+    //     setListItems(JSON.parse(response.data.value) || []);  
+    //   });
+    //   storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
+    //     console.log("Count Response: ", response)
+    //     setTotalCount(JSON.parse(response.data.value) || []);
+    //   });
+    //   storageInstance.getItem('selectedOption_' + res.data.itemId).then(response => {
+    //     console.log("Option Response: ", response)
+    //     setSelectedOption(JSON.parse(response.data.value) || []);
+    //   });
+
+    //   // const localListItems = JSON.parse(localStorage.getItem('listItems_' + res.data.itemId)) || []
+    //   // setListItems(localListItems)
+    //   // const localTotalCount = parseInt(localStorage.getItem('totalCount_' + res.data.itemId)) || 0
+    //   // setTotalCount(localTotalCount)
+    //   // const localSelectedOption = JSON.parse(localStorage.getItem('selectedOption_' + res.data.itemId)) || {}
+    //   // setSelectedOption(localSelectedOption)
+
+    // }
+
+    // monday.listen("context", handleContext);
+
+    // return () => {
+    //   isMounted = false
+    // }
+
+    // WIthout cleanup
+
     monday.listen("context", (res) => {
-      console.log("res: ", res)
+      console.log("useEffect storage res: ", res)
       setContext(res.data);
 
       storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
-        console.log("Response: ", response)
-        setListItems(JSON.parse(response.data.value) || []);
+        console.log("Item Response: ", response)
+        setListItems(JSON.parse(response.data.value) || []);  
       });
       storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
+        console.log("Count Response: ", response)
         setTotalCount(JSON.parse(response.data.value) || []);
       });
       storageInstance.getItem('selectedOption_' + res.data.itemId).then(response => {
+        console.log("Option Response: ", response)
         setSelectedOption(JSON.parse(response.data.value) || []);
       });
 
@@ -134,38 +178,11 @@ const App = () => {
       // setSelectedOption(localSelectedOption)
     });
 
-    if (context) {
-      // console.log("Context: ", context)
-      // const boardId = context.boardId;
-      
-      // const query = `query {
-      //   boards(ids: ${boardId}) {
-      //     columns {
-      //       id
-      //       title
-      //     }
-      //   }
-      // }`;
-      // monday.api(query).then((res) => {
-      //   console.log("res: ", res);
-      //   const columns = res.data.boards[0].columns;
-      //   console.log("Columns: ", columns);
-      //   const cols = columns.map(column => {
-      //       return {label: column.title, value: column.id}
-      //   })
-      //   console.log("cols: ", cols)
-      //   setColOptions(cols)
-      // }).catch((err) => {
-      //   console.log("Error fetching columns: ", err);
-      // });
-    }
-    
-    
-    // console.log("inputTotal:", parseInt(totalCount))
     
   }, [/*listItems, colOptions*/]);
 
   useEffect(() => { // Need to make it so that the add item deletes the previous item input and so that the subitems can be selected rather than just items
+    console.log("----App.js UseEffect #2----")
     if (selectedOption && context && totalCount != null) {
       console.log("Inner Context: ", selectedOption)
       const boardId = context.boardId
@@ -184,9 +201,10 @@ const App = () => {
           console.log("Error updating column: ", err);
         });
     }
-  }, [totalCount, selectedOption, context]);
+  }, [totalCount, selectedOption/*,context*/]);
 
   useEffect(() => {
+    console.log("----App.js UseEffect #3----")
     if (context) {
       console.log("Context: ", context)
       storageInstance.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
@@ -196,6 +214,7 @@ const App = () => {
   }, [listItems/*, context*/]);
 
   useEffect(() => {
+    console.log("----App.js UseEffect #4----")
     if (context) {
       console.log("Context: ", context)
       storageInstance.setItem('totalCount_' + context.itemId, totalCount.toString());
@@ -205,6 +224,7 @@ const App = () => {
   }, [totalCount/*, context*/]);
 
   useEffect(() => {
+    console.log("----App.js UseEffect #5----")
     if (context) {
       console.log("Context: ", context)
       storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
@@ -216,15 +236,21 @@ const App = () => {
   }, [selectedOption/*, context*/]);
 
   useEffect(() => {
+    console.log("----App.js UseEffect #6----")
     if (context) {
-      // const storedSelectedOption = localStorage.getItem('selectedOption_' + context.itemId);
-      const storedSelectedOption = storageInstance.getItem('selectedOption_' + context.itemId);
-      if (storedSelectedOption) {
-        // Set it as the default selected option
-        // You may need to adapt this part to match the data structure of your `Dropdown` component
-        const defaultSelectedOption = JSON.parse(storedSelectedOption);
-        handleOptionsSelection(defaultSelectedOption);
-      }
+      const storedSelectedOption = storageInstance.getItem('selectedOption_' + context.itemId).then(response => {
+        if (response.data && response.data.value) {
+          const defaultSelectedOption = JSON.parse(storedSelectedOption);
+          handleOptionsSelection(defaultSelectedOption);
+        }
+      })
+      // const storedSelectedOption = storageInstance.getItem('selectedOption_' + context.itemId);
+      // if (storedSelectedOption) {
+      //   // Set it as the default selected option
+      //   // You may need to adapt this part to match the data structure of your `Dropdown` component
+      //   const defaultSelectedOption = JSON.parse(storedSelectedOption);
+      //   handleOptionsSelection(defaultSelectedOption);
+      // }
     }
     
   }, [])
