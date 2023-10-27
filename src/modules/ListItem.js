@@ -7,38 +7,37 @@ import { useState, useEffect } from "react";
 const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni40NTBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.6IFWFt7JJq7-tQjaLIPa2rLB8kGFRxp0bA6lrb564BI");
 
-const ListItem = ({itemName, itemCount, handleDelete, handleTotalCount}) => {
+const ListItem = ({itemName, itemCount, handleDelete, parentContext, handleTotalCount}) => {
     const [isChecked, setIsChecked] = useState(false);
-    const [context, setContext] = useState();
+    // const [context, setContext] = useState();
+    // const {context } = parentContext;
 
-    useEffect(() => {
-        // Notice this method notifies the monday platform that user gains a first value in an app.
-        // Read more about it here: https://developer.monday.com/apps/docs/mondayexecute#value-created-for-user/
-        monday.execute("valueCreatedForUser");
+    // useEffect(() => {
+    //     // Notice this method notifies the monday platform that user gains a first value in an app.
+    //     // Read more about it here: https://developer.monday.com/apps/docs/mondayexecute#value-created-for-user/
+    //     monday.execute("valueCreatedForUser");
     
-        // TODO: set up event listeners, Here`s an example, read more here: https://developer.monday.com/apps/docs/mondaylisten/
-        monday.listen("context", (res) => {
-          // console.log("res: ", res)
-          setContext(res.data);
-        });
+    //     // TODO: set up event listeners, Here`s an example, read more here: https://developer.monday.com/apps/docs/mondaylisten/
+    //     monday.listen("context", (res) => {
+    //       // console.log("res: ", res)
+    //       setContext(res.data);
+    //     });
         
-      }, [/*context*/]);
+    //   }, [/*context*/]);
 
-    useEffect(() => {
-        // Read isChecked state from localStorage when the component mounts
-        console.log("ListItem Context: " , context)
-        const storedIsChecked = context ? localStorage.getItem(`isChecked-${itemName}_${context.itemId}`) : null;
-        if (storedIsChecked !== null) {
-          setIsChecked(JSON.parse(storedIsChecked));
-        }
+    // useEffect(() => {
+    //     // Read isChecked state from localStorage when the component mounts
+    //     console.log("ListItem Context: " , context)
+    //     const storedIsChecked = context ? localStorage.getItem(`isChecked-${itemName}_${context.itemId}`) : null;
+    //     if (storedIsChecked !== null) {
+    //       setIsChecked(JSON.parse(storedIsChecked));
+    //     }
     
-        // Save isChecked state to localStorage whenever it changes
-        return () => {
-            if (context) {
-                localStorage.setItem(`isChecked-${itemName}_${context.itemId}`, JSON.stringify(isChecked));
-            }
-        };
-      }, [itemName, context]);
+    //     // Save isChecked state to localStorage whenever it changes
+    //     if (context) {
+    //         localStorage.setItem(`isChecked-${itemName}_${context.itemId}`, JSON.stringify(isChecked));
+    //     }
+    //   }, [itemName, context]);
 
 
     return (
