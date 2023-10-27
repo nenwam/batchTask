@@ -16,8 +16,8 @@ const storageInstance = monday.storage.instance;
 const App = () => {
   const [context, setContext] = useState();
   const [listItems, setListItems] = useState([]);
-  const [nameInput, setNameInput] = useState("")
-  const [countInput, setCountInput] = useState()
+  // const [nameInput, setNameInput] = useState("")
+  // const [countInput, setCountInput] = useState()
   const [totalCount, setTotalCount] = useState(0);
   // const [colOptions, setColOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState({}); 
@@ -25,15 +25,15 @@ const App = () => {
 
 
 
-  const handleInput = () => {
-    setTotalCount(totalCount + parseInt(countInput))
+  const handleInput = (name, count) => {
+    setTotalCount(totalCount + parseInt(count))
     const uniqueKey = Math.random().toString(36).substr(2, 9);
-    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: nameInput, itemCount: countInput };
+    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: name, itemCount: parseInt(count) };
     console.log("Key: ", uniqueKey)
     setListItems([...listItems, newItem])
     // setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
-    setNameInput("")
-    setCountInput()
+    // setNameInput("")
+    // setCountInput()
     console.log("handleInput Option: ", selectedOption)
   }
 
@@ -43,7 +43,7 @@ const App = () => {
 
   const handleOptionsSelection = (evt) => {
     setSelectedOption(evt) 
-    storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+    storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(evt));
     // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("handleOptions Option: ", evt) 
   }
@@ -64,7 +64,7 @@ const App = () => {
       prevListItems.map(item => console.log(item.itemName))
       // Update localStorage to store the new list items
       console.log("New Items", itemName)
-      storageInstance.setItem('listItems', JSON.stringify(newListItems));
+      // storageInstance.setItem('listItems', JSON.stringify(newListItems));  -- NEWEST
       // localStorage.setItem('listItems', JSON.stringify(newListItems));
       return newListItems;
     });
@@ -77,7 +77,7 @@ const App = () => {
         newTotalCount = prevTotalCount;
       }
       // Update localStorage to store the new total count
-      storageInstance.setItem('totalCount', newTotalCount);
+      // storageInstance.setItem('totalCount', newTotalCount); -- NEWEST
       // localStorage.setItem('totalCount', newTotalCount);
       return newTotalCount;
     });
@@ -97,14 +97,14 @@ const App = () => {
   }
 
 
-  const updateNameValue = (evt) => {
-    setNameInput(evt);
-  }
+  // const updateNameValue = (evt) => {
+  //   setNameInput(evt);
+  // }
 
 
-  const updateCountValue = (evt) => {
-    setCountInput(evt);
-  }
+  // const updateCountValue = (evt) => {
+  //   setCountInput(evt);
+  // }
 
 
   useEffect(() => {
@@ -158,11 +158,11 @@ const App = () => {
       setContext(res.data);
 
       storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
-        console.log("Item Response: ", response)
+        // console.log("Item Response: ", response)
         setListItems(JSON.parse(response.data.value) || []);  
       });
       storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
-        console.log("Count Response: ", response)
+        // console.log("Count Response: ", response)
         setTotalCount(JSON.parse(response.data.value) || []);
       });
       storageInstance.getItem('selectedOption_' + res.data.itemId).then(response => {
@@ -201,7 +201,7 @@ const App = () => {
           console.log("Error updating column: ", err);
         });
     }
-  }, [totalCount, selectedOption/*,context*/]);
+  }, [totalCount, /*selectedOption,context*/]);
 
   useEffect(() => {
     console.log("----App.js UseEffect #3----")
@@ -259,23 +259,24 @@ const App = () => {
   
   return (
     <div className="App container">
-      <div className="row">
+      <div className="row mt-5">
         <div className="col-12 py-3">
-          <ListInput 
-            nameHandler={evt => updateNameValue(evt)} 
-            nameValue={nameInput}
-            countHandler={evt => updateCountValue(evt)} 
-            countValue={countInput}
+          {context && <ListInput 
+            // nameHandler={evt => updateNameValue(evt)} 
+            // nameValue={nameInput}
+            // countHandler={evt => updateCountValue(evt)} 
+            // countValue={countInput}
             totalCount={totalCount} 
             dropdownHandler={evt => handleOptionsSelection(evt)}
             clickFunction={handleInput}
             resetTotalFunction={handleTotalReset}
+            parentContext={context}
             disabledCheck={selectedOption.value !== undefined ? false : true }>
-          </ListInput>
+          </ListInput>}
         </div>
         <Divider></Divider>
         <div className="col-12">
-          <List items={listItems} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></List>
+          { context && <List items={listItems} handleDelete={handleItemDelete} parentContext={context} handleTotalCount={changeTotalCount}></List>}
         </div> 
       </div>
     </div>

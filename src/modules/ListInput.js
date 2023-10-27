@@ -1,35 +1,40 @@
 import React from "react";
 import { TextField, Button, Label, Dropdown } from "monday-ui-react-core"
 import mondaySdk from "monday-sdk-js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni40NTBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.6IFWFt7JJq7-tQjaLIPa2rLB8kGFRxp0bA6lrb564BI");
 const storageInstance = monday.storage.instance;
 
-const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount, dropdownHandler, clickFunction, resetTotalFunction, disabledCheck}) => {
-    const [context, setContext] = useState();
+const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clickFunction, resetTotalFunction, parentContext, disabledCheck}) => {
+    // const [context, setContext] = useState();
+    console.log("parentContext: ", parentContext)
+    const {context} = parentContext
+    console.log("Context from parent: ", context)
     const [colOptions, setColOptions] = useState([])
+    const nameRef = useRef();
+    const countRef = useRef();
 
     // useEffect(() => {
     //     localStorage.setItem('colOptions_' + context.itemId, JSON.stringify(colOptions));
     //   }, [colOptions]);
 
-    useEffect(() => {
-        const contextUnsubscribe = monday.listen("context", (res) => {
-          setContext(res.data);
-        //   storageInstance.getItem(`colOptions` + res.data.itemId).then(response => {
-        //     setColOptions(JSON.parse(response.data.value) || []);
-        //   });
-        //   const localColOptions = JSON.parse(localStorage.getItem('colOptions_' + res.data.itemId)) || []
-        //   setColOptions(localColOptions)
-        });
+    // useEffect(() => {
+    //     const contextUnsubscribe = monday.listen("context", (res) => {
+    //       setContext(res.data);
+    //     //   storageInstance.getItem(`colOptions` + res.data.itemId).then(response => {
+    //     //     setColOptions(JSON.parse(response.data.value) || []);
+    //     //   });
+    //     //   const localColOptions = JSON.parse(localStorage.getItem('colOptions_' + res.data.itemId)) || []
+    //     //   setColOptions(localColOptions)
+    //     });
       
-        // Clean up the subscription when the component unmounts
-        return () => {
-          contextUnsubscribe && contextUnsubscribe.unsubscribe();
-        };
-      }, []);
+    //     // Clean up the subscription when the component unmounts
+    //     return () => {
+    //       contextUnsubscribe && contextUnsubscribe.unsubscribe();
+    //     };
+    //   }, []);
 
     useEffect(() => {
 
@@ -60,12 +65,13 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
         //         console.log("Error fetching columns: ", err);
         //     });
         // })
+        console.log("ListInput: ", parentContext)
 
-        if (context){
-            console.log(context)
+        if (parentContext){
+            console.log("Parent Context 2", parentContext)
 
-            console.log("Context: ", context)
-            const boardId = context.boardId;
+            console.log("Context: ", parentContext)
+            const boardId = parentContext.boardId;
             
             const query = `query {
             boards(ids: ${boardId}) {
@@ -98,7 +104,15 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
         
 
         
-    }, [context])
+    }, [parentContext])
+
+    const handleClick = () => {
+        console.log("Name Val", nameRef)
+        const nameVal = nameRef.current.value
+        
+        const countVal = countRef.current.value
+        clickFunction(nameVal, countVal)
+    }
 
     return (
         <div className="container">
@@ -129,13 +143,13 @@ const ListInput = ({nameHandler, nameValue, countHandler, countValue, totalCount
             </div>
             <div className="row pt-4">
                 <div className="col">
-                    <TextField onChange={nameHandler} value={nameValue} type="text" placeholder="Batch name" />
+                    <TextField ref={nameRef} onChange={nameHandler} type="text" placeholder="Batch name" />
                 </div>
                 <div className="col">
-                    <TextField onChange={countHandler} value={countValue} type="number" placeholder="Batch count" />  
+                    <TextField ref={countRef} onChange={countHandler} type="number" placeholder="Batch count" />  
                 </div>
                 <div className="col">
-                    <Button onClick={clickFunction} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
+                    <Button onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
                 </div>
             </div>
         </div>

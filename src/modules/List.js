@@ -2,16 +2,16 @@ import React from "react"
 import { Box } from "monday-ui-react-core"
 import ListItem from "./ListItem.js";
 
-const List = ({items, handleDelete, context, handleTotalCount}) => {
+const List = ({items, handleDelete, parentContext, handleTotalCount}) => {
 
     return (
         <div>
-            <Box textColor={Box.textColors.PRIMARY_TEXT_COLOR} border={Box.borders.DEFAULT} rounded={Box.roundeds.MEDIUM}>
+            {/* <Box textColor={Box.textColors.PRIMARY_TEXT_COLOR} border={Box.borders.DEFAULT} rounded={Box.roundeds.MEDIUM}> */}
                 {items.map((item) => (
-                    <ListItem key={item.uniqueKey} itemName={item.itemName} itemCount={item.itemCount} context={context} handleDelete={handleDelete} handleTotalCount={handleTotalCount}></ListItem>
+                    <ListItem key={item.uniqueKey} itemName={item.itemName} itemCount={item.itemCount} parentContext={parentContext} handleDelete={handleDelete} handleTotalCount={handleTotalCount}></ListItem>
                     ))
                 }
-            </Box>
+            {/* </Box> */}
         </div>
     );
 }
