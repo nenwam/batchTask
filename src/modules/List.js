@@ -5,7 +5,7 @@ import ListItem from "./ListItem.js";
 const List = ({items, handleDelete, parentContext, handleTotalCount}) => {
 
     return (
-        <div>
+        <div style={{overflow: "auto", height: '22.25rem'}}>
             {/* <Box textColor={Box.textColors.PRIMARY_TEXT_COLOR} border={Box.borders.DEFAULT} rounded={Box.roundeds.MEDIUM}> */}
                 {items.map((item) => (
                     <ListItem key={item.uniqueKey} itemName={item.itemName} itemCount={item.itemCount} parentContext={parentContext} handleDelete={handleDelete} handleTotalCount={handleTotalCount}></ListItem>
