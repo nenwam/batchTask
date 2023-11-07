@@ -10,7 +10,7 @@ import { Divider } from "monday-ui-react-core"
 
 // Usage of mondaySDK example, for more information visit here: https://developer.monday.com/apps/docs/introduction-to-the-sdk/
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni40NTBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.6IFWFt7JJq7-tQjaLIPa2rLB8kGFRxp0bA6lrb564BI");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 const storageInstance = monday.storage.instance;
 
 const App = () => {
@@ -26,9 +26,13 @@ const App = () => {
 
 
   const handleInput = (name, count) => {
-    setTotalCount(totalCount + parseInt(count))
+    console.log("count: ", typeof(parseInt(count)))
+    const countAsNum = parseInt(count)
+    const newTotalCount = totalCount + countAsNum
+    console.log("new total: ", newTotalCount)
+    setTotalCount(newTotalCount)
     const uniqueKey = Math.random().toString(36).substr(2, 9);
-    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: name, itemCount: parseInt(count) };
+    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: name, itemCount: countAsNum };
     console.log("Key: ", uniqueKey)
     setListItems([...listItems, newItem])
     // setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
@@ -43,7 +47,7 @@ const App = () => {
 
   const handleOptionsSelection = (evt) => {
     setSelectedOption(evt) 
-    storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(evt));
+    storageInstance.setItem('selectedOption_'/* + context.itemId*/, JSON.stringify(evt));
     // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("handleOptions Option: ", evt) 
   }
@@ -165,7 +169,7 @@ const App = () => {
         // console.log("Count Response: ", response)
         setTotalCount(JSON.parse(response.data.value) || []);
       });
-      storageInstance.getItem('selectedOption_' + res.data.itemId).then(response => {
+      storageInstance.getItem('selectedOption_'/* + res.data.itemId*/).then(response => {
         console.log("Option Response: ", response)
         setSelectedOption(JSON.parse(response.data.value) || []);
       });
@@ -227,7 +231,7 @@ const App = () => {
     console.log("----App.js UseEffect #5----")
     if (context) {
       console.log("Context: ", context)
-      storageInstance.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+      storageInstance.setItem('selectedOption_'/* + context.itemId*/, JSON.stringify(selectedOption));
       // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
       console.log("Option: ", selectedOption.value)
     }
@@ -238,7 +242,7 @@ const App = () => {
   useEffect(() => {
     console.log("----App.js UseEffect #6----")
     if (context) {
-      const storedSelectedOption = storageInstance.getItem('selectedOption_' + context.itemId).then(response => {
+      const storedSelectedOption = storageInstance.getItem('selectedOption_'/* + context.itemId*/).then(response => {
         if (response.data && response.data.value) {
           const defaultSelectedOption = JSON.parse(storedSelectedOption);
           handleOptionsSelection(defaultSelectedOption);
@@ -271,7 +275,8 @@ const App = () => {
             clickFunction={handleInput}
             resetTotalFunction={handleTotalReset}
             parentContext={context}
-            disabledCheck={selectedOption.value !== undefined ? false : true }>
+            disabledCheck={selectedOption.value !== undefined ? false : true }
+            selectedVal={selectedOption}>
           </ListInput>}
         </div>
         <Divider></Divider>
