@@ -4,10 +4,10 @@ import mondaySdk from "monday-sdk-js";
 import { useState, useEffect, useRef } from "react";
 
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni40NTBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.6IFWFt7JJq7-tQjaLIPa2rLB8kGFRxp0bA6lrb564BI");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 const storageInstance = monday.storage.instance;
 
-const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clickFunction, resetTotalFunction, parentContext, disabledCheck}) => {
+const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, disabledCheck}) => {
     // const [context, setContext] = useState();
     console.log("parentContext: ", parentContext)
     const {context} = parentContext
@@ -138,7 +138,7 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
                     
                 </div>
                 <div className="col">
-                    <Dropdown placeholder="Target column" onChange={dropdownHandler} options={colOptions}></Dropdown>
+                    <Dropdown placeholder="Target column" onChange={dropdownHandler} options={colOptions} value={selectedVal}></Dropdown>
                 </div>
             </div>
             <div className="row pt-4">
