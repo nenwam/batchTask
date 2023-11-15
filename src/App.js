@@ -10,7 +10,7 @@ import { Divider } from "monday-ui-react-core"
 
 // Usage of mondaySDK example, for more information visit here: https://developer.monday.com/apps/docs/introduction-to-the-sdk/
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 const storageInstance = monday.storage.instance;
 
 const App = () => {
@@ -26,11 +26,14 @@ const App = () => {
 
 
   const handleInput = (name, count) => {
-    console.log("count: ", typeof(parseInt(count)))
+    console.log("count: ", totalCount)
     const countAsNum = parseInt(count)
-    const newTotalCount = totalCount + countAsNum
-    console.log("new total: ", newTotalCount)
-    setTotalCount(newTotalCount)
+    // const newTotalCount = totalCount + countAsNum
+    
+    setTotalCount(prevTotalCount => {
+      console.log("new total: ", prevTotalCount)
+      return parseInt(prevTotalCount) + countAsNum 
+    })
     const uniqueKey = Math.random().toString(36).substr(2, 9);
     const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: name, itemCount: countAsNum };
     console.log("Key: ", uniqueKey)
@@ -53,16 +56,6 @@ const App = () => {
   }
 
   const handleItemDelete = (itemName, itemCount, isChecked) => {
-    // setListItems(prevListItems => prevListItems.filter(item => item.itemName !== itemName));
-    // setTotalCount(prevTotalCount => {
-    //   console.log("PrevTotal Count: ", prevTotalCount)
-    //   if (!isChecked) {
-    //     return prevTotalCount - parseInt(itemCount)
-    //   } else if (isChecked) {
-    //     return prevTotalCount
-    //   }
-      
-    // });
     setListItems(prevListItems => {
       const newListItems = prevListItems.filter(item => item.itemName !== itemName);
       prevListItems.map(item => console.log(item.itemName))
@@ -87,15 +80,17 @@ const App = () => {
     });
   }
 
-
   const changeTotalCount = (isChecked, itemCount) => {
+    console.log("isChecked type: ", typeof(isChecked))
+    console.log("itemCount type: ", typeof(itemCount))
     setTotalCount(prevTotalCount => {
       if (isChecked) {
-        return prevTotalCount - parseInt(itemCount);
+        return parseInt(prevTotalCount) - parseInt(itemCount);
       } else {
-        return prevTotalCount + parseInt(itemCount);
+        return parseInt(prevTotalCount) + parseInt(itemCount);
       }
     })
+    // setTimeout(() => {}, 2000)
 
     console.log("changeTotal Option: ", selectedOption)  
   }
@@ -166,8 +161,9 @@ const App = () => {
         setListItems(JSON.parse(response.data.value) || []);  
       });
       storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
-        // console.log("Count Response: ", response)
-        setTotalCount(JSON.parse(response.data.value) || []);
+        console.log("Count Response: ", response.data.value)
+        const parsedCount = parseInt(response.data.value)
+        setTotalCount(parsedCount || 0);
       });
       storageInstance.getItem('selectedOption_'/* + res.data.itemId*/).then(response => {
         console.log("Option Response: ", response)
