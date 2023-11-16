@@ -26,13 +26,20 @@ const App = () => {
 
 
   const handleInput = (name, count) => {
-    console.log("count: ", typeof(parseInt(count)))
+    console.log("count: ", totalCount)
     const countAsNum = parseInt(count)
-    const newTotalCount = totalCount + countAsNum
-    console.log("new total: ", newTotalCount)
-    setTotalCount(newTotalCount)
+    // const newTotalCount = totalCount + countAsNum
+    
+    setTotalCount(prevTotalCount => {
+      console.log("new total: ", prevTotalCount)
+      return parseInt(prevTotalCount) + countAsNum 
+    })
+    const currentDate = new Date()
+    const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true})
     const uniqueKey = Math.random().toString(36).substr(2, 9);
-    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: name, itemCount: countAsNum };
+    const itemDisplayPos = "B" + (listItems.length + 1) + " | " + currentTime + " - " + 
+      (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear()
+    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: itemDisplayPos, itemCount: countAsNum };
     console.log("Key: ", uniqueKey)
     setListItems([...listItems, newItem])
     // setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
@@ -53,16 +60,6 @@ const App = () => {
   }
 
   const handleItemDelete = (itemName, itemCount, isChecked) => {
-    // setListItems(prevListItems => prevListItems.filter(item => item.itemName !== itemName));
-    // setTotalCount(prevTotalCount => {
-    //   console.log("PrevTotal Count: ", prevTotalCount)
-    //   if (!isChecked) {
-    //     return prevTotalCount - parseInt(itemCount)
-    //   } else if (isChecked) {
-    //     return prevTotalCount
-    //   }
-      
-    // });
     setListItems(prevListItems => {
       const newListItems = prevListItems.filter(item => item.itemName !== itemName);
       prevListItems.map(item => console.log(item.itemName))
@@ -87,28 +84,20 @@ const App = () => {
     });
   }
 
-
   const changeTotalCount = (isChecked, itemCount) => {
+    console.log("isChecked type: ", typeof(isChecked))
+    console.log("itemCount type: ", typeof(itemCount))
     setTotalCount(prevTotalCount => {
       if (isChecked) {
-        return prevTotalCount - parseInt(itemCount);
+        return parseInt(prevTotalCount) - parseInt(itemCount);
       } else {
-        return prevTotalCount + parseInt(itemCount);
+        return parseInt(prevTotalCount) + parseInt(itemCount);
       }
     })
+    // setTimeout(() => {}, 2000)
 
     console.log("changeTotal Option: ", selectedOption)  
   }
-
-
-  // const updateNameValue = (evt) => {
-  //   setNameInput(evt);
-  // }
-
-
-  // const updateCountValue = (evt) => {
-  //   setCountInput(evt);
-  // }
 
 
   useEffect(() => {
@@ -116,46 +105,6 @@ const App = () => {
     // Notice this method notifies the monday platform that user gains a first value in an app.
     // Read more about it here: https://developer.monday.com/apps/docs/mondayexecute#value-created-for-user/
     monday.execute("valueCreatedForUser");
-
-    // TODO: set up event listeners, Here`s an example, read more here: https://developer.monday.com/apps/docs/mondaylisten/
-    // let isMounted = true
-
-    // const handleContext = (res) => {
-
-    //   if (!isMounted) return
-
-    //   console.log("useEffect storage res: ", res)
-    //   setContext(res.data);
-
-    //   storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
-    //     console.log("Item Response: ", response)
-    //     setListItems(JSON.parse(response.data.value) || []);  
-    //   });
-    //   storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
-    //     console.log("Count Response: ", response)
-    //     setTotalCount(JSON.parse(response.data.value) || []);
-    //   });
-    //   storageInstance.getItem('selectedOption_' + res.data.itemId).then(response => {
-    //     console.log("Option Response: ", response)
-    //     setSelectedOption(JSON.parse(response.data.value) || []);
-    //   });
-
-    //   // const localListItems = JSON.parse(localStorage.getItem('listItems_' + res.data.itemId)) || []
-    //   // setListItems(localListItems)
-    //   // const localTotalCount = parseInt(localStorage.getItem('totalCount_' + res.data.itemId)) || 0
-    //   // setTotalCount(localTotalCount)
-    //   // const localSelectedOption = JSON.parse(localStorage.getItem('selectedOption_' + res.data.itemId)) || {}
-    //   // setSelectedOption(localSelectedOption)
-
-    // }
-
-    // monday.listen("context", handleContext);
-
-    // return () => {
-    //   isMounted = false
-    // }
-
-    // WIthout cleanup
 
     monday.listen("context", (res) => {
       console.log("useEffect storage res: ", res)
@@ -166,26 +115,21 @@ const App = () => {
         setListItems(JSON.parse(response.data.value) || []);  
       });
       storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
-        // console.log("Count Response: ", response)
-        setTotalCount(JSON.parse(response.data.value) || []);
+        console.log("Count Response: ", response.data.value)
+        const parsedCount = parseInt(response.data.value)
+        setTotalCount(parsedCount || 0);
       });
       storageInstance.getItem('selectedOption_'/* + res.data.itemId*/).then(response => {
         console.log("Option Response: ", response)
         setSelectedOption(JSON.parse(response.data.value) || []);
       });
 
-      // const localListItems = JSON.parse(localStorage.getItem('listItems_' + res.data.itemId)) || []
-      // setListItems(localListItems)
-      // const localTotalCount = parseInt(localStorage.getItem('totalCount_' + res.data.itemId)) || 0
-      // setTotalCount(localTotalCount)
-      // const localSelectedOption = JSON.parse(localStorage.getItem('selectedOption_' + res.data.itemId)) || {}
-      // setSelectedOption(localSelectedOption)
     });
 
     
   }, [/*listItems, colOptions*/]);
 
-  useEffect(() => { // Need to make it so that the add item deletes the previous item input and so that the subitems can be selected rather than just items
+  useEffect(() => { 
     console.log("----App.js UseEffect #2----")
     if (selectedOption && context && totalCount != null) {
       console.log("Inner Context: ", selectedOption)
@@ -205,7 +149,7 @@ const App = () => {
           console.log("Error updating column: ", err);
         });
     }
-  }, [totalCount, /*selectedOption,context*/]);
+  }, [totalCount/*, selectedOption,context*/]);
 
   useEffect(() => {
     console.log("----App.js UseEffect #3----")
@@ -264,7 +208,7 @@ const App = () => {
   return (
     <div className="App container">
       <div className="row mt-5">
-        <div className="col-12 py-3">
+        <div className="col-12 py-3 mt-5">
           {context && <ListInput 
             // nameHandler={evt => updateNameValue(evt)} 
             // nameValue={nameInput}
