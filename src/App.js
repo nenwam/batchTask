@@ -34,8 +34,12 @@ const App = () => {
       console.log("new total: ", prevTotalCount)
       return parseInt(prevTotalCount) + countAsNum 
     })
+    const currentDate = new Date()
+    const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true})
     const uniqueKey = Math.random().toString(36).substr(2, 9);
-    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: name, itemCount: countAsNum };
+    const itemDisplayPos = "B" + (listItems.length + 1) + " | " + currentTime + " - " + 
+      (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear()
+    const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: itemDisplayPos, itemCount: countAsNum };
     console.log("Key: ", uniqueKey)
     setListItems([...listItems, newItem])
     // setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
@@ -204,7 +208,7 @@ const App = () => {
   return (
     <div className="App container">
       <div className="row mt-5">
-        <div className="col-12 py-3">
+        <div className="col-12 py-3 mt-5">
           {context && <ListInput 
             // nameHandler={evt => updateNameValue(evt)} 
             // nameValue={nameInput}
