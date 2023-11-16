@@ -1,0 +1,8 @@
+- ellaborate on additional info widgets
+    - this is essential
+- ellaborate on proprietary model rendering on client sites
+- ellaborate on vr experience
+
+CENTERPIECE:
+- model viewer
+- vectory
