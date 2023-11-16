@@ -120,10 +120,10 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
                 </div>
             </div>
             <div className="row">
-                <div className="col">
+                <div className="col-3">
                     <h4>Enter Batches</h4>
                 </div>  
-                <div className="col">
+                <div className="col-3">
                     <div className="row">
                         {/* <div className="col">
                             <h4>Total</h4>
@@ -135,13 +135,13 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
                     
                     
                 </div>
-                <div className="col">
+                <div className="col-6">
                     <Dropdown placeholder="Target column" onChange={dropdownHandler} options={colOptions} value={selectedVal}></Dropdown>
                 </div>
             </div>
             <div className="row pt-4">
                 <div className="col">
-                    <TextField ref={nameRef} onChange={nameHandler} type="text" placeholder="Batch name" />
+                    <TextField disabled={true} ref={nameRef} onChange={nameHandler} type="text" placeholder="Batch name" />
                 </div>
                 <div className="col">
                     <TextField ref={countRef} onChange={countHandler} type="number" placeholder="Batch count" />  
