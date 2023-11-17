@@ -7,7 +7,7 @@ const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 const storageInstance = monday.storage.instance;
 
-const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, disabledCheck}) => {
+const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, printerHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, printerVal, disabledCheck}) => {
     // const [context, setContext] = useState();
     console.log("parentContext: ", parentContext)
     const {context} = parentContext
@@ -15,6 +15,32 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
     const [colOptions, setColOptions] = useState([])
     const nameRef = useRef();
     const countRef = useRef();
+    const printerOptions = [
+        {
+            label: "Printer 1",
+            value: "printer1"
+        },
+        {
+            label: "Printer 2",
+            value: "printer2",
+        },
+        {
+            label: "Printer 3",
+            value: "printer3"
+        },
+        {
+            label: "Printer 4",
+            value: "printer4"
+        },
+        {
+            label: "Printer 5",
+            value: "printer5"
+        },
+        {
+            label: "Printer 6",
+            value: "printer6"
+        }
+    ]
 
     // useEffect(() => {
     //     localStorage.setItem('colOptions_' + context.itemId, JSON.stringify(colOptions));
@@ -141,6 +167,7 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
             </div>
             <div className="row pt-4">
                 <div className="col">
+                    <Dropdown placeholder="Printer" onChange={printerHandler} options={printerOptions} value={printerVal}></Dropdown>
                     <TextField disabled={true} ref={nameRef} onChange={nameHandler} type="text" placeholder="Batch name" />
                 </div>
                 <div className="col">
