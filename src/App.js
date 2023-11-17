@@ -21,6 +21,7 @@ const App = () => {
   const [totalCount, setTotalCount] = useState(0);
   // const [colOptions, setColOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState({}); 
+  const [printerOptions, setPrinterOptions] = useState({})
   const [optionSelected, setOptionSelected] = useState(false);
 
 
@@ -57,6 +58,13 @@ const App = () => {
     storageInstance.setItem('selectedOption_'/* + context.itemId*/, JSON.stringify(evt));
     // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("handleOptions Option: ", evt) 
+  }
+
+  const handlePrinterSelection = (evt) => {
+    setPrinterOptions(evt)
+    storageInstance.setItem('printerOptions_' + context.itemId, JSON.stringify(evt));
+    // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+    console.log("handleOptions Option: ", evt)
   }
 
   const handleItemDelete = (itemName, itemCount, isChecked) => {
@@ -123,7 +131,10 @@ const App = () => {
         console.log("Option Response: ", response)
         setSelectedOption(JSON.parse(response.data.value) || []);
       });
-
+      storageInstance.getItem('printerOption_' + res.data.itemId).then(response => {
+        console.log("Printer Response: ", response.data.value)
+        setPrinterOptions(JSON.parse(response.data.value) || []);
+      });
     });
 
     
@@ -186,6 +197,16 @@ const App = () => {
   useEffect(() => {
     console.log("----App.js UseEffect #6----")
     if (context) {
+      console.log("Context: ", context)
+      storageInstance.setItem('printerOption_' + context.itemId, JSON.stringify(printerOptions));
+      // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
+      console.log("Option: ", printerOptions.value)
+    }
+  }, [printerOptions])
+
+  useEffect(() => {
+    console.log("----App.js UseEffect #7----")
+    if (context) {
       const storedSelectedOption = storageInstance.getItem('selectedOption_'/* + context.itemId*/).then(response => {
         if (response.data && response.data.value) {
           const defaultSelectedOption = JSON.parse(storedSelectedOption);
@@ -216,11 +237,13 @@ const App = () => {
             // countValue={countInput}
             totalCount={totalCount} 
             dropdownHandler={evt => handleOptionsSelection(evt)}
+            printerHandler={evt => handlePrinterSelection(evt)}
             clickFunction={handleInput}
             resetTotalFunction={handleTotalReset}
             parentContext={context}
             disabledCheck={selectedOption.value !== undefined ? false : true }
-            selectedVal={selectedOption}>
+            selectedVal={selectedOption}
+            printerVal={printerOptions}>
           </ListInput>}
         </div>
         <Divider></Divider>
