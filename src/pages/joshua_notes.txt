@@ -1,0 +1,28 @@
+Streamlining any processes on our site, (homemedix.com, password: Medix0909!!!) feel free to look around, it’s almost done being developed
+    - What types of streamlining processes / tasks are you looking to accomplish on the site?
+        - eligibility checks?  
+        - Any sort of automations / modifications / additions to the site that you would like done?
+
+Integrating Shopify’s API with our backend system NikoHealth’s API
+    - What is the main purpose / goal behind integrating with Shopify's API?
+        - Inventory Managment 
+            - Item purchased
+            - 
+    - What type of integrations would you like done?
+        - 3 different workflows
+            - Rental
+                - Not SHopify checkout, its a form, Backend > Shopify
+            - Private Pay
+                - Regular SHopify checkout, Shopify > Backend
+            - Insurance Pay
+                - Not Shopify checkout, its a form, Backend > Shopify
+    - Do you need Shopify front end development, or is this a purely backend translation / integration between Shopify and NikoHealth?
+    - Are you planning on using any of Shopify's backend dashboards or CMS, using both NikoHealth's and Shopify's dashboard, or will a custom dashboard be necessary?
+    - What portions of the API (in both Shopify and NikoHealth) do you plan on integrating?
+
+I don’t know if you know anything about RPA companies like UIPath or Automation Anywhere but also looking at maybe having some bots programmed, spoke to several developers already..
+    - What types of automations are you planning on making?
+    - What types of tasks do you plan on automating with bots?
+    - What type of bots do you plan on using?
+    - Are there any aspects of this project that you plan on / intrested in completing with AI?
+

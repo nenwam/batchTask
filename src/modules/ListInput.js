@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, Button, Label, Dropdown } from "monday-ui-react-core"
+import { TextField, Button, Label, Dropdown, Modal, ModalContent, ExpandCollapse, Icon, Text } from "monday-ui-react-core"
 import mondaySdk from "monday-sdk-js";
 import { useState, useEffect, useRef } from "react";
 
@@ -7,8 +7,7 @@ const monday = mondaySdk();
 // monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 const storageInstance = monday.storage.instance;
 
-const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, printerHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, printerVal, disabledCheck}) => {
-    // const [context, setContext] = useState();
+const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, batches}) => {
     console.log("parentContext: ", parentContext)
     const {context} = parentContext
     console.log("Context from parent: ", context)
@@ -41,6 +40,7 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, prin
             value: "printer6"
         }
     ]
+    const [addPadding, setAddPadding] = useState(false)
 
     // useEffect(() => {
     //     localStorage.setItem('colOptions_' + context.itemId, JSON.stringify(colOptions));
@@ -138,11 +138,47 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, prin
         clickFunction(nameVal, countVal)
     }
 
+    const handlePadding = () => {
+        setAddPadding(!addPadding)
+    }
+
     return (
         <div className="container">
-            <div className="row pb-3">
+            <div className="row pt-5">
+                {addPadding && <div className="row mt-5"></div>}
                 <div className="col">
                     <Button onClick={resetTotalFunction} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Reset Total</Button>
+                </div>
+                <div className="col">
+                    <ExpandCollapse
+                    className="ExpandCollapse-stories-module_storybookExpandCollapse"
+                    title="Plan Details"
+                    >
+                        <div className="row">
+                            <div className="col">
+                                <p>Current Plan</p>
+                            </div>
+                            <div className="col">
+                                <Label text="Free" color="positive" kind="line"></Label>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <p>Batches</p>
+                            </div>
+                            <div className="col">
+                                <Label text={batches} color="primary" kind="line"></Label>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <p>Limit</p>
+                            </div>
+                            <div className="col">
+                                <Label text="100" color="negative" kind="line"></Label>
+                            </div>
+                        </div>
+                    </ExpandCollapse>
                 </div>
             </div>
             <div className="row">
@@ -167,7 +203,7 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, prin
             </div>
             <div className="row pt-4">
                 <div className="col">
-                    <Dropdown placeholder="Printer" onChange={printerHandler} options={printerOptions} value={printerVal}></Dropdown>
+                    {/* <Dropdown placeholder="Printer" onChange={printerHandler} options={printerOptions} value={printerVal}></Dropdown> */}
                     <TextField disabled={true} ref={nameRef} onChange={nameHandler} type="text" placeholder="Batch name" />
                 </div>
                 <div className="col">

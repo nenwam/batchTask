@@ -6,7 +6,9 @@ import * as serviceWorker from "./serviceWorker";
 import 'bootstrap/dist/css/bootstrap.css';
 
 const root = createRoot(document.getElementById("root"));
-root.render(<App />);
+root.render(
+    <App />
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
