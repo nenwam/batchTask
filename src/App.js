@@ -39,7 +39,7 @@ const App = () => {
     const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true})
     const uniqueKey = Math.random().toString(36).substr(2, 9);
     const itemDisplayPos = "B" + (listItems.length + 1) + " | " + currentTime + " - " + 
-      (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear() + "\n" + printerOptions.label
+      (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear() + "\n | " + printerOptions.label
     const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: itemDisplayPos, itemCount: countAsNum };
     console.log("Key: ", uniqueKey)
     setListItems([...listItems, newItem])
