@@ -45,10 +45,10 @@ const ListItem = ({itemName, itemCount, handleDelete, parentContext, handleTotal
     return (
         <div className="container align-middle">
             <div className="row">
-                <div className="col-5">
+                <div className="col-7">
                     <Checkbox className="align-middle" disabled={/*isChecked ? true : */true} onChange={() => {setIsChecked(!isChecked); handleTotalCount(!isChecked, parseInt(itemCount)); console.log('---CHECKED---')}} label={itemName}></Checkbox>
                 </div>                
-                <div className="col-5">
+                <div className="col-3">
                     <div className="row">
                         <div className="col">
                             <Label text={itemCount} color={Label.colors.Dark} kind={Label.kinds.LINE}></Label>
