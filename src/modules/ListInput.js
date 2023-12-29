@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, Button, Label, Dropdown, Modal, ModalContent, ExpandCollapse, Icon, Text } from "monday-ui-react-core"
+import { TextField, Button, Label, Dropdown, ExpandCollapse } from "monday-ui-react-core"
 import mondaySdk from "monday-sdk-js";
 import { useState, useEffect, useRef } from "react";
 
@@ -7,7 +7,7 @@ const monday = mondaySdk();
 // monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 const storageInstance = monday.storage.instance;
 
-const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, batches}) => {
+const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, batches, theme}) => {
     console.log("parentContext: ", parentContext)
     const {context} = parentContext
     console.log("Context from parent: ", context)
@@ -123,12 +123,6 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
                 console.log("Error fetching columns: ", err);
             });
         } 
-
-
-        
-        
-        
-
         
     }, [parentContext])
 
@@ -138,44 +132,41 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
         clickFunction(nameVal, countVal)
     }
 
-    const handlePadding = () => {
-        setAddPadding(!addPadding)
-    }
-
     return (
         <div className="container">
             <div className="row pt-5">
-                {addPadding && <div className="row mt-5"></div>}
+                <div className="row mb-5"></div>
                 <div className="col">
                     <Button onClick={resetTotalFunction} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Reset Total</Button>
                 </div>
-                <div className="col">
+                <div className="col" style={{color: 'white'}}>
                     <ExpandCollapse
-                    className="ExpandCollapse-stories-module_storybookExpandCollapse"
+                    // className="ExpandCollapse-stories-module_storybookExpandCollapse"
+                    style={{color: 'white'}}
                     title="Plan Details"
                     >
                         <div className="row">
                             <div className="col">
-                                <p>Current Plan</p>
+                                {theme == 'dark' || theme == 'black' ? <p style={{color: 'white'}}>Current Plan</p> : <p style={{color: 'black'}}>Current Plan</p>}
                             </div>
                             <div className="col">
-                                <Label text="Free" color="positive" kind="line"></Label>
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                                <p>Batches</p>
-                            </div>
-                            <div className="col">
-                                <Label text={batches} color="primary" kind="line"></Label>
+                                {theme == 'dark' || theme=='black' ? <Label text="Free" color="positive" ></Label> : <Label text="Free" color="positive" kind="line"></Label>}
                             </div>
                         </div>
                         <div className="row">
                             <div className="col">
-                                <p>Limit</p>
+                            {theme == 'dark' || theme == 'black' ? <p style={{color: 'white'}}>Batches</p> : <p style={{color: 'black'}}>Batches</p>}
                             </div>
                             <div className="col">
-                                <Label text="100" color="negative" kind="line"></Label>
+                            {theme == 'dark' || theme=='black' ? <Label text={batches} color="primary"></Label> : <Label text={batches} color="primary" kind="line"></Label>}
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                            {theme == 'dark' || theme == 'black' ? <p style={{color: 'white'}}>Limit</p> : <p style={{color: 'black'}}>Limit</p>}
+                            </div>
+                            <div className="col">
+                                {theme == 'dark' || theme == 'black' ? <Label text="100" color="negative"></Label> : <Label text="100" color="negative" kind="line"></Label>}
                             </div>
                         </div>
                     </ExpandCollapse>
@@ -207,7 +198,7 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, clic
                     <TextField disabled={true} ref={nameRef} onChange={nameHandler} type="text" placeholder="Batch name" />
                 </div>
                 <div className="col">
-                    <TextField ref={countRef} onChange={countHandler} type="number" placeholder="Batch count" />  
+                    <span><TextField style={{background: '#FFF'}} ref={countRef} onChange={countHandler} type="number" placeholder="Batch count" /></span>  
                 </div>
                 <div className="col">
                     <Button onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>

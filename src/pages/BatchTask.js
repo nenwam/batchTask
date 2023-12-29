@@ -19,24 +19,19 @@ const storageInstance = monday.storage.instance;
 const BatchTask = () => {
   const [context, setContext] = useState();
   const [listItems, setListItems] = useState([]);
-  // const [nameInput, setNameInput] = useState("")
-  // const [countInput, setCountInput] = useState()
   const [totalCount, setTotalCount] = useState(0);
-  // const [colOptions, setColOptions] = useState([])
   const [selectedOption, setSelectedOption] = useState({}); 
   const [printerOptions, setPrinterOptions] = useState({})
+  const [themeSetting, setThemeSetting] = useState();
   const [optionSelected, setOptionSelected] = useState(false);
   const [totalBatches, setTotalBatches] = useState();
   const [shouldLoad, setShouldLoad] = useState(false);
-  // const {totalBatches, setTotalBatches} = useData();
-  const channel = new BroadcastChannel('monday_app_channel');
 
   
 
   const handleInput = (name, count) => {
     console.log("count: ", totalCount)
     const countAsNum = parseInt(count)
-    // const newTotalCount = totalCount + countAsNum
     
     setTotalCount(prevTotalCount => {
       console.log("new total: ", prevTotalCount)
@@ -55,10 +50,6 @@ const BatchTask = () => {
     })
     setShouldLoad(true)
     console.log("BatchTask totalBatches: ", totalBatches)
-    
-    // setListItems([...listItems, <ListItem key={uniqueKey} itemName={nameInput} itemCount={countInput} handleDelete={handleItemDelete} handleTotalCount={changeTotalCount}></ListItem>])
-    // setNameInput("")
-    // setCountInput()
     console.log("handleInput Option: ", selectedOption)
   }
 
@@ -69,14 +60,12 @@ const BatchTask = () => {
   const handleOptionsSelection = (evt) => {
     setSelectedOption(evt) 
     storageInstance.setItem('selectedOption_'/* + context.itemId*/, JSON.stringify(evt));
-    // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("handleOptions Option: ", evt) 
   }
 
   const handlePrinterSelection = (evt) => {
     setPrinterOptions(evt)
     storageInstance.setItem('printerOptions_' + context.itemId, JSON.stringify(evt));
-    // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
     console.log("handleOptions Option: ", evt)
   }
 
@@ -87,8 +76,7 @@ const BatchTask = () => {
       prevListItems.map(item => console.log(item.itemName))
       // Update localStorage to store the new list items
       console.log("New Items", itemName)
-      // storageInstance.setItem('listItems', JSON.stringify(newListItems));  -- NEWEST
-      // localStorage.setItem('listItems', JSON.stringify(newListItems));
+
       return newListItems;
     });
   
@@ -99,9 +87,7 @@ const BatchTask = () => {
       } else {
         newTotalCount = prevTotalCount;
       }
-      // Update localStorage to store the new total count
-      // storageInstance.setItem('totalCount', newTotalCount); -- NEWEST
-      // localStorage.setItem('totalCount', newTotalCount);
+
       return newTotalCount;
     });
   }
@@ -116,7 +102,6 @@ const BatchTask = () => {
         return parseInt(prevTotalCount) + parseInt(itemCount);
       }
     })
-    // setTimeout(() => {}, 2000)
 
     console.log("changeTotal Option: ", selectedOption)  
   }
@@ -131,9 +116,9 @@ const BatchTask = () => {
     monday.listen("context", (res) => {
       console.log("useEffect storage res: ", res)
       setContext(res.data);
+      setThemeSetting(res.data.theme)
 
       storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
-        // console.log("Item Response: ", response)
         setListItems(JSON.parse(response.data.value) || []);  
       });
       storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
@@ -144,6 +129,10 @@ const BatchTask = () => {
       storageInstance.getItem('selectedOption_'/* + res.data.itemId*/).then(response => {
         console.log("Option Response: ", response)
         setSelectedOption(JSON.parse(response.data.value) || []);
+        // if (response.data && response.data.value) {
+        //   const defaultSelectedOption = JSON.parse(storedSelectedOption);
+        //   handleOptionsSelection(defaultSelectedOption);
+        // }
       });
       storageInstance.getItem('printerOption_' + res.data.itemId).then(response => {
         console.log("Printer Response: ", response.data.value)
@@ -154,6 +143,11 @@ const BatchTask = () => {
         console.log("Total Batches Response: ", response.data.value)
         setTotalBatches(JSON.parse(response.data.value));
       });
+      storageInstance.getItem('themeSetting_').then(response => {
+        console.log("Theme Response: ", response)
+        console.log("Theme Response: ", response.data.value)
+        setThemeSetting(JSON.parse(response.data.value));
+      })
     });
 
     
@@ -180,8 +174,9 @@ const BatchTask = () => {
         });
     }
     setShouldLoad(false)
-  }, [totalCount/*, selectedOption,context*/]);
+  }, [totalCount]);
 
+  // Update listItems in the board storage when it changes
   useEffect(() => {
     console.log("----App.js UseEffect #3----")
     if (context) {
@@ -189,8 +184,9 @@ const BatchTask = () => {
       storageInstance.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
     }
     
-  }, [listItems/*, context*/]);
+  }, [listItems]);
 
+  // Update totalCount in the board storage when it changes
   useEffect(() => {
     console.log("----App.js UseEffect #4----")
     if (context) {
@@ -198,61 +194,69 @@ const BatchTask = () => {
       storageInstance.setItem('totalCount_' + context.itemId, totalCount.toString());
     }
     
-  }, [totalCount/*, context*/]);
+  }, [totalCount]);
 
+
+  // Update selectedOption in the board storage when it changes
   useEffect(() => {
     console.log("----App.js UseEffect #5----")
     if (context) {
       console.log("Context: ", context)
       storageInstance.setItem('selectedOption_'/* + context.itemId*/, JSON.stringify(selectedOption));
-      // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
       console.log("Option: ", selectedOption.value)
     }
     
     
-  }, [selectedOption/*, context*/]);
+  }, [selectedOption]);
 
+
+  // Update printerOptions in the board storage when it changes
   useEffect(() => {
     console.log("----App.js UseEffect #6----")
     if (context) {
       console.log("Context: ", context)
       storageInstance.setItem('printerOption_' + context.itemId, JSON.stringify(printerOptions));
-      // localStorage.setItem('selectedOption_' + context.itemId, JSON.stringify(selectedOption));
       console.log("Option: ", printerOptions.value)
     }
   }, [printerOptions])
 
+
+  // Update totalBatches in the board storage when it changes
   useEffect(() => {
     
     console.log("----App.js UseEffect #7----")
     if (context) {
       console.log("Context: ", context)
       storageInstance.setItem('totalBatches_', JSON.stringify(totalBatches));
-      // localStorage.setItem('listItems_' + context.itemId, JSON.stringify(listItems));
-      channel.postMessage({ updatedData: 1 });
     }
     console.log("Total Batches: ", totalBatches)
   }, [totalBatches])
 
+  // Update themeSetting in the board storage when it changes (for dark/light/black mode)
   useEffect(() => {
+    
     console.log("----App.js UseEffect #8----")
     if (context) {
-      const storedSelectedOption = storageInstance.getItem('selectedOption_'/* + context.itemId*/).then(response => {
-        if (response.data && response.data.value) {
-          const defaultSelectedOption = JSON.parse(storedSelectedOption);
-          handleOptionsSelection(defaultSelectedOption);
-        }
-      })
-      // const storedSelectedOption = storageInstance.getItem('selectedOption_' + context.itemId);
-      // if (storedSelectedOption) {
-      //   // Set it as the default selected option
-      //   // You may need to adapt this part to match the data structure of your `Dropdown` component
-      //   const defaultSelectedOption = JSON.parse(storedSelectedOption);
-      //   handleOptionsSelection(defaultSelectedOption);
-      // }
+      console.log("Context: ", context)
+      storageInstance.setItem('themeSetting_', JSON.stringify(themeSetting));
     }
+    console.log("Total Batches: ", themeSetting)
+  }, [themeSetting])
+
+
+
+  // useEffect(() => {
+  //   console.log("----App.js UseEffect #8----")
+  //   if (context) {
+  //     const storedSelectedOption = storageInstance.getItem('selectedOption_'/* + context.itemId*/).then(response => {
+  //       if (response.data && response.data.value) {
+  //         const defaultSelectedOption = JSON.parse(storedSelectedOption);
+  //         handleOptionsSelection(defaultSelectedOption);
+  //       }
+  //     })
+  //   }
     
-  }, [])
+  // }, [])
 
   const testSub = () => {
 
@@ -268,48 +272,90 @@ const BatchTask = () => {
     
   }
 
-  testSub()
+  // testSub()
 
+  const lightMode = <div className="App container mt-5">
+                      <div className="row pt-5">
+                        <div className="col-12 py-3">
+                          {context && <ListInput 
+                            // nameHandler={evt => updateNameValue(evt)} 
+                            // nameValue={nameInput}
+                            // countHandler={evt => updateCountValue(evt)} 
+                            // countValue={countInput}
+                            totalCount={totalCount} 
+                            dropdownHandler={evt => handleOptionsSelection(evt)}
+                            clickFunction={handleInput}
+                            resetTotalFunction={handleTotalReset}
+                            parentContext={context}
+                            disabledCheck={selectedOption.value !== undefined ? false : true }
+                            selectedVal={selectedOption}
+                            batches={totalBatches}>
+                          </ListInput>}
+                        </div>
+                        {context && context.user.isViewOnly ? <Label color="negative" text="As a viewer, you are unable to use this app"></Label> : null}
+                        <Divider></Divider>
+                        <div className="col-12">
+                          
+                          {context && !shouldLoad ? <List items={listItems} handleDelete={handleItemDelete} parentContext={context} handleTotalCount={changeTotalCount}></List> : <Loader hasBackground size={40} />}
+                        </div> 
+                        <div className="row">
+                          <div className="col text-center">
+                              <p><a href="https://rallyessentials.com/get-in-touch/">Send us your feedback</a></p>
+                          </div>
+                          <div className="col text-center">
+                              <p><a href="#">Documentation</a></p>
+                          </div>
+                          <div className="col text-center">
+                              <p><a href="https://rallyessentials.com/get-in-touch/">Email Support</a></p>
+                          </div>
+                      </div>
+                      </div>
+                      
+                    </div>;
+  
+  const darkMode = <div className="App container mt-5" style={{background: '#505050'}}> 
+                      <div className="row pt-5" style={{background: '#505050'}}>
+                        <div className="col-12 py-3" style={{background: '#505050', color: 'white'}}>
+                          {context && <ListInput 
+                            // nameHandler={evt => updateNameValue(evt)} 
+                            // nameValue={nameInput}
+                            // countHandler={evt => updateCountValue(evt)} 
+                            // countValue={countInput}
+                            style={{color: 'white'}}
+                            totalCount={totalCount} 
+                            dropdownHandler={evt => handleOptionsSelection(evt)}
+                            clickFunction={handleInput}
+                            resetTotalFunction={handleTotalReset}
+                            parentContext={context}
+                            disabledCheck={selectedOption.value !== undefined ? false : true }
+                            selectedVal={selectedOption}
+                            batches={totalBatches}
+                            theme={themeSetting}>
+                          </ListInput>}
+                        </div>
+                        {context && context.user.isViewOnly ? <Label color="negative" text="As a viewer, you are unable to use this app"></Label> : null}
+                        <Divider></Divider>
+                        <div className="col-12">
+                          {context && !shouldLoad ? <List theme={themeSetting} items={listItems} handleDelete={handleItemDelete} parentContext={context} handleTotalCount={changeTotalCount}></List> : <Loader hasBackground size={40} />}
+                        </div> 
+                        <div className="row">
+                          <div className="col text-center">
+                              <p><a href="https://rallyessentials.com/get-in-touch/">Send us your feedback</a></p>
+                          </div>
+                          <div className="col text-center">
+                              <p><a href="#">Documentation</a></p>
+                          </div>
+                          <div className="col text-center">
+                              <p><a href="https://rallyessentials.com/get-in-touch/">Email Support</a></p>
+                          </div>
+                      </div>
+                      </div>
+                      
+                    </div>;
   
   return (
-    <div className="App container mt-5">
-      <div className="row pt-5">
-        <div className="col-12 py-3">
-          {context && <ListInput 
-            // nameHandler={evt => updateNameValue(evt)} 
-            // nameValue={nameInput}
-            // countHandler={evt => updateCountValue(evt)} 
-            // countValue={countInput}
-            totalCount={totalCount} 
-            dropdownHandler={evt => handleOptionsSelection(evt)}
-            clickFunction={handleInput}
-            resetTotalFunction={handleTotalReset}
-            parentContext={context}
-            disabledCheck={selectedOption.value !== undefined ? false : true }
-            selectedVal={selectedOption}
-            batches={totalBatches}>
-          </ListInput>}
-        </div>
-        {context && context.user.isViewOnly ? <Label color="negative" text="As a viewer, you are unable to use this app"></Label> : null}
-        <Divider></Divider>
-        <div className="col-12">
-          
-          {context && !shouldLoad ? <List items={listItems} handleDelete={handleItemDelete} parentContext={context} handleTotalCount={changeTotalCount}></List> : <Loader hasBackground size={40} />}
-        </div> 
-        <div className="row">
-          <div className="col text-center">
-              <p><a href="https://rallyessentials.com/get-in-touch/">Send us your feedback</a></p>
-          </div>
-          <div className="col text-center">
-              <p><a href="#">Documentation</a></p>
-          </div>
-          <div className="col text-center">
-              <p><a href="https://rallyessentials.com/get-in-touch/">Email Support</a></p>
-          </div>
-      </div>
-      </div>
-      
-    </div>
+    
+    themeSetting === "light" ? lightMode : darkMode
     
   );
 };
