@@ -1,13 +1,13 @@
 import React from "react";
-import { TextField, Button, Label, Dropdown } from "monday-ui-react-core"
+import { TextField, Button, Label, Dropdown, Loader } from "monday-ui-react-core"
 import mondaySdk from "monday-sdk-js";
 import { useState, useEffect, useRef } from "react";
 
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 const storageInstance = monday.storage.instance;
 
-const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, printerHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, printerVal, disabledCheck}) => {
+const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, printerHandler, clickFunction, resetTotalFunction, parentContext, selectedVal, printerVal, shouldLoad, disabledCheck}) => {
     // const [context, setContext] = useState();
     console.log("parentContext: ", parentContext)
     const {context} = parentContext
@@ -98,6 +98,7 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, prin
 
             console.log("Context: ", parentContext)
             const boardId = parentContext.boardId;
+            console.log("using boardID: ", parentContext.boardId)
             
             const query = `query {
             boards(ids: ${boardId}) {
@@ -108,7 +109,7 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, prin
             }
             }`;
             monday.api(query).then((res) => {
-                console.log("res: ", res);
+                console.log("ListInput res: ", res);
                 const columns = res.data.boards[0].columns;
                 console.log("Columns: ", columns);
                 const cols = columns.map(column => {
@@ -171,10 +172,13 @@ const ListInput = ({nameHandler, countHandler, totalCount, dropdownHandler, prin
                     <TextField disabled={true} ref={nameRef} onChange={nameHandler} type="text" placeholder="Batch name" />
                 </div>
                 <div className="col">
-                    <TextField ref={countRef} onChange={countHandler} type="number" placeholder="Batch count" />  
+                    <TextField ref={countRef} onChange={countHandler} type={TextField.type.NUMBER} value="0" />  
                 </div>
                 <div className="col">
-                    <Button onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
+                    <Button disabled={shouldLoad ? true : false} onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
+                </div>
+                <div className="col">
+                    { shouldLoad ? <Loader size={Loader.sizes.SMALL}></Loader> : null }
                 </div>
             </div>
         </div>
