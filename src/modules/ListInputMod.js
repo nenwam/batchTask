@@ -45,7 +45,23 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         {
             label: "Printer 6",
             value: "printer6"
-        }
+        },
+        {
+          label: "Printer 7",
+          value: "printer7"
+        },
+        {
+            label: "Printer 8",
+            value: "printer8"
+        },
+        {
+          label: "Printer 9",
+          value: "printer9"
+        },
+        {
+          label: "Printer 10",
+          value: "printer10"
+        },
     ]), []);
     
     
@@ -311,7 +327,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                     <Button onClick={handleTotalReset} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Reset Total</Button>
                 </div>
                 <div className="col">
-                    <p style={{color: "grey"}}>Version 2.1.0</p>
+                    <p style={{color: "grey"}}>Version 2.1.1</p>
                 </div>
             </div>
             <div className="row">
