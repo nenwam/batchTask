@@ -5,9 +5,9 @@ import { Erase } from "monday-ui-react-core/icons"
 import { useState, useEffect } from "react";
 
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w");
 
-const ListItem = ({itemName, itemCount, handleDelete, parentContext, handleTotalCount}) => {
+const ListItem = ({itemName, itemCount, handleDelete}) => {
     const [isChecked, setIsChecked] = useState(false);
     // const [context, setContext] = useState();
     // const {context } = parentContext;
@@ -46,7 +46,7 @@ const ListItem = ({itemName, itemCount, handleDelete, parentContext, handleTotal
         <div className="container align-middle">
             <div className="row">
                 <div className="col-7">
-                    <Checkbox className="align-middle" disabled={/*isChecked ? true : */true} onChange={() => {setIsChecked(!isChecked); handleTotalCount(!isChecked, parseInt(itemCount)); console.log('---CHECKED---')}} label={itemName}></Checkbox>
+                    <Checkbox className="align-middle" disabled={/*isChecked ? true : */true} /*onChange={() => {setIsChecked(!isChecked); handleTotalCount(!isChecked, parseInt(itemCount)); console.log('---CHECKED---')}}*/ label={itemName}></Checkbox>
                 </div>                
                 <div className="col-5">
                     <div className="row">
