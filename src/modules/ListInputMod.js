@@ -9,15 +9,10 @@ monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIj
 const storageInstance = monday.storage.instance;
 
 const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTotalFunction, selectedVal, printerVal, disabledCheck}) => {
-    // const [context, setContext] = useState();
-    // console.log("parentContext: ", parentContext)
     const [context, setContext] = useState()
     console.log("Context from parent: ", context)
     const [listItems, setListItems] = useState([]);
-    // const [nameInput, setNameInput] = useState("")
-    // const [countInput, setCountInput] = useState()
     const [totalCount, setTotalCount] = useState(0);
-    // const [colOptions, setColOptions] = useState([])
     const [selectedOption, setSelectedOption] = useState({}); 
     const [printerOptions, setPrinterOptions] = useState({})
     const [optionSelected, setOptionSelected] = useState(false);
@@ -54,26 +49,6 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     ]), []);
     
     
-
-    // useEffect(() => {
-    //     localStorage.setItem('colOptions_' + context.itemId, JSON.stringify(colOptions));
-    //   }, [colOptions]);
-
-    // useEffect(() => {
-    //     const contextUnsubscribe = monday.listen("context", (res) => {
-    //       setContext(res.data);
-    //     //   storageInstance.getItem(`colOptions` + res.data.itemId).then(response => {
-    //     //     setColOptions(JSON.parse(response.data.value) || []);
-    //     //   });
-    //     //   const localColOptions = JSON.parse(localStorage.getItem('colOptions_' + res.data.itemId)) || []
-    //     //   setColOptions(localColOptions)
-    //     });
-      
-    //     // Clean up the subscription when the component unmounts
-    //     return () => {
-    //       contextUnsubscribe && contextUnsubscribe.unsubscribe();
-    //     };
-    //   }, []);
     useEffect(() => {
         console.log("----App.js UseEffect #1----")
         // Notice this method notifies the monday platform that user gains a first value in an app.
@@ -110,9 +85,15 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
           })
 
         console.log("ListInput: ", context)
+    
+        });
+    
+        
+      }, []);
 
-        if (context){
-            console.log("Parent Context 2", context)
+      useEffect(() => {
+        if (context) {
+          console.log("Parent Context 2", context)
 
             console.log("Context: ", context)
             const boardId = context.boardId;
@@ -130,56 +111,28 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 console.log("ListInput res: ", res);
                 const columns = res.data.boards[0].columns;
                 console.log("Columns: ", columns);
-                const cols = columns.map(column => {
+                const filter = 'numbers'
+                const cols = columns.map(column => {                      
                     return {label: column.title, value: column.id}
                 })
                 console.log("cols: ", cols)
-                setColOptions(cols)
+                const filteredCols = cols
+                .filter(col => col.value.includes(filter))
+                .map(col => {
+                    return {label: col.label, value: col.value}
+                })
+                setColOptions(filteredCols)
                 storageInstance.setItem(`colOptions`, JSON.stringify(cols)).then((res) => {
                     console.log("colOptions stored in board storage: ", res);
-                });
+                })
             }).catch((err) => {
                 console.log("Error fetching columns: ", err);
+            }).finally(() => {
+                // setShouldLoad(false)
             });
-        } 
-    
-          // storageInstance.getItem('listItems_' + res.data.itemId).then(response => {
-          //   setListItems(JSON.parse(response.data.value) || []);  
-          // }).catch(error => {
-          //   console.log(error)
-          //   // setShouldLoad(false)
-          // })
-    
-          // storageInstance.getItem('totalCount_' + res.data.itemId).then(response => {
-          //   console.log("Count Response: ", response.data.value)
-          //   const parsedCount = parseInt(response.data.value)
-          //   setTotalCount(parsedCount || 0);
-          // }).catch(error => { 
-          //   console.log(error)
-          //   // setShouldLoad(false)
-          // })
-    
-          // storageInstance.getItem('selectedOption_'/* + res.data.itemId*/).then(response => {
-          //   console.log("Option Response: ", response)
-          //   setSelectedOption(JSON.parse(response.data.value) || []);
-          // }).catch(error => { 
-          //   console.log(error)
-          //   // setShouldLoad(false)
-          // })
-    
-          // storageInstance.getItem('printerOption_' + res.data.itemId).then(response => {
-          //   console.log("Printer Response: ", response.data.value)
-          //   setPrinterOptions(JSON.parse(response.data.value) || []);
-          // }).catch(error => { 
-          //   console.log(error)
-          // }).finally(() => {
-          //   setShouldLoad(false)
-          // });
-    
-        });
-    
+        }
         
-      }, []);
+      }, [context])
 
 
     const handleInput = (name, count) => {
@@ -211,28 +164,10 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     
       const handleOptionsSelection = (evt) => {
         setSelectedOption(evt) 
-        // setShouldLoad(true)
-        // storageInstance.setItem('selectedOption_'/* + context.itemId*/, JSON.stringify(evt)
-        // ).catch(error => {
-        //   console.log(error)
-        //   setShouldLoad(false)
-        // }).finally(() => { 
-        //   setShouldLoad(false)
-        // });
-        // console.log("handleOptions Option: ", evt) 
       }
     
       const handlePrinterSelection = (evt) => {
         setPrinterOptions(evt)
-        // setShouldLoad(true)
-        // storageInstance.setItem('printerOptions_' + context.itemId, JSON.stringify(evt)
-        // ).catch(error => {
-        //   console.log(error)
-        //   setShouldLoad(false)
-        // }).finally(() => {  
-        //   setShouldLoad(false)
-        // });
-        // console.log("handleOptions Option: ", evt)
       }
     
       const handleItemDelete = (itemName, itemCount, isChecked) => {
@@ -271,51 +206,6 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         console.log("changeTotal Option: ", selectedOption)  
       }
     
-    
-      
-    
-      // useEffect(() => { 
-      //   console.log("----App.js UseEffect #2----")
-      //   if (selectedOption && context && totalCount != null) {
-      //     console.log("Inner Context: ", selectedOption)
-      //     const boardId = context.boardId
-      //     console.log("using boardID: ", boardId)
-      //     const query = `mutation {
-      //       change_simple_column_value (board_id: ${boardId}, item_id: ${context.itemId}, column_id: "${selectedOption.value}", value: "${JSON.stringify(totalCount)}") {
-      //         id
-      //       }
-      //     }`;
-          
-      //     monday.api(query)
-      //       .then((res) => {
-      //         console.log("Column updated successfully: ", res, "with ", totalCount);
-      //       })
-      //       .catch((err) => {
-      //         console.log("Error updating column: ", err);
-      //       });
-      //   }
-        
-        
-      // }, [totalCount]);
-    
-      // Update listItems in the board storage when it changes
-      // useEffect(() => {
-      //   console.log("----App.js UseEffect #3----")
-      //   if (context) {
-      //     console.log("Context: ", context)
-      //     setShouldLoad(true)
-      //     storageInstance.setItem('listItems_' + context.itemId, JSON.stringify(listItems)
-      //     ).catch(error => { 
-      //       console.log(error)
-      //       setShouldLoad(false)
-      //     }).finally(() => { 
-      //       setShouldLoad(false)
-      //     });
-          
-      //   }
-        
-      // }, [listItems]);
-    
       useEffect(() => {
         console.log("----App.js UseEffect #3----")
         if (context) {
@@ -331,15 +221,6 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 setShouldLoad(false)
             }, 1000)
           });
-          
-    
-          // storageInstance.setItem('totalCount_' + context.itemId, totalCount.toString()
-          // ).catch(error => { 
-          //   console.log(error)
-          //   // setShouldLoad(false)
-          // }).finally(() => { 
-          //   setShouldLoad(false)
-          // });
           
         }
     
@@ -379,25 +260,6 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
           }
       }, [totalCount])
     
-      // Update totalCount in the board storage when it changes
-      // useEffect(() => {
-      //   console.log("----App.js UseEffect #4----")
-      //   if (context) {
-      //     console.log("Context: ", context)
-      //     setShouldLoad(true)
-      //     storageInstance.setItem('totalCount_' + context.itemId, totalCount.toString()
-      //     ).catch(error => { 
-      //       console.log(error)
-      //       setShouldLoad(false)
-      //     }).finally(() => { 
-      //       setShouldLoad(false)
-      //     });
-      //     // localStorage.setItem('totalCount_' + context.itemId, totalCount.toString());
-          
-      //   }
-        
-      // }, [totalCount]);
-    
       // Update selectedOption in the board storage when it changes
       useEffect(() => {
         console.log("----App.js UseEffect #5----")
@@ -434,26 +296,6 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         }
       }, [printerOptions])
     
-    
-      // useEffect(() => {
-      //   console.log("----App.js UseEffect #7----")
-      //   if (context) {
-      //     const storedSelectedOption = storageInstance.getItem('selectedOption_'/* + context.itemId*/).then(response => {
-      //       if (response.data && response.data.value) {
-      //         const defaultSelectedOption = JSON.parse(storedSelectedOption);
-      //         handleOptionsSelection(defaultSelectedOption);
-      //       }
-      //     })
-      //     // const storedSelectedOption = storageInstance.getItem('selectedOption_' + context.itemId);
-      //     // if (storedSelectedOption) {
-      //     //   // Set it as the default selected option
-      //     //   // You may need to adapt this part to match the data structure of your `Dropdown` component
-      //     //   const defaultSelectedOption = JSON.parse(storedSelectedOption);
-      //     //   handleOptionsSelection(defaultSelectedOption);
-      //     // }
-      //   }
-        
-      // }, [])
 
     const handleClick = () => {
         const nameVal = nameRef.current.value
@@ -467,6 +309,9 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
             <div className="row pb-3">
                 <div className="col">
                     <Button onClick={handleTotalReset} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Reset Total</Button>
+                </div>
+                <div className="col">
+                    <p style={{color: "grey"}}>Version 2.1.0</p>
                 </div>
             </div>
             <div className="row">
@@ -500,7 +345,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 <div className="col">
                     <Button disabled={shouldLoad ? true : false} onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
                 </div>
-                <div className="col">
+                <div className="col-1">
                     { shouldLoad ? <Loader size={Loader.sizes.SMALL}></Loader> : null }
                 </div>
             </div>
