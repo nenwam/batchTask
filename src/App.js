@@ -359,8 +359,8 @@ const App = () => {
   
   return (
     <div className="App container">
-      <div className="row mt-5">
-        <div className="col-12 py-3 mt-5">
+      <div className="row">
+        <div className="col-12 py-3">
           {/* {context && <ListInput 
             // nameHandler={evt => updateNameValue(evt)} 
             // nameValue={nameInput}

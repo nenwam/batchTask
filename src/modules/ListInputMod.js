@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, Button, Label, Dropdown, Loader, Divider } from "monday-ui-react-core"
+import { TextField, Button, Label, Dropdown, Loader, Divider, ExpandCollapse } from "monday-ui-react-core"
 import mondaySdk from "monday-sdk-js";
 import { useState, useEffect, useRef, useMemo } from "react";
 import List from "./List"
@@ -14,7 +14,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     const [listItems, setListItems] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [selectedOption, setSelectedOption] = useState({}); 
-    const [printerOptions, setPrinterOptions] = useState({})
+    // const [printerOptions, setPrinterOptions] = useState({})
     const [optionSelected, setOptionSelected] = useState(false);
     const [shouldLoad, setShouldLoad] = useState(false);
     const [initialShouldLoad, setInitialShouldLoad] = useState(false);
@@ -90,9 +90,6 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
             return storageInstance.getItem('selectedOption_'/* + res.data.itemId*/)
           }).then(result4 => { 
             setSelectedOption(JSON.parse(result4.data.value) || []);
-            return storageInstance.getItem('printerOption_' + res.data.itemId)
-          }).then(result5 => { 
-            setPrinterOptions(JSON.parse(result5.data.value) || []);
           }).catch(error => { 
             console.log(error)
             // setShouldLoad(false)
@@ -151,7 +148,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
       }, [context])
 
 
-    const handleInput = (name, count) => {
+    const handleInput = (count) => {
         console.log("count: ", totalCount)
         const countAsNum = parseInt(count)
         
@@ -162,9 +159,9 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         const currentDate = new Date()
         const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true})
         const uniqueKey = Math.random().toString(36).substr(2, 9);
-        const printerDisplay = printerOptions.label == undefined ? "Printer N/A" : printerOptions.label
+        // const printerDisplay = printerOptions.label == undefined ? "Printer N/A" : printerOptions.label
         const itemDisplayPos = "B" + (listItems.length + 1) + " | " + currentTime + " - " + 
-          (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear() + "\n | " + printerDisplay
+          (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear() + "\n | " /*+ printerDisplay*/
         const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: itemDisplayPos, itemCount: countAsNum };
         console.log("Key: ", uniqueKey)
         setListItems([...listItems, newItem])
@@ -183,7 +180,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
       }
     
       const handlePrinterSelection = (evt) => {
-        setPrinterOptions(evt)
+        // setPrinterOptions(evt)
       }
     
       const handleItemDelete = (itemName, itemCount, isChecked) => {
@@ -296,27 +293,28 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
       }, [selectedOption]);
     
       // Update printerOptions in the board storage when it changes
-      useEffect(() => {
-        console.log("----App.js UseEffect #6----")
-        if (context) {
-          console.log("Context: ", context)
-        //   setShouldLoad(true)
-          storageInstance.setItem('printerOption_' + context.itemId, JSON.stringify(printerOptions)
-          ).catch(error => { 
-            console.log(error)
-            setShouldLoad(false)
-          }).finally(() => { 
-            // setShouldLoad(false)
-          });
-          console.log("Option: ", printerOptions.value)
-        }
-      }, [printerOptions])
+      // useEffect(() => {
+      //   console.log("----App.js UseEffect #6----")
+      //   if (context) {
+      //     console.log("Context: ", context)
+      //   //   setShouldLoad(true)
+      //     storageInstance.setItem('printerOption_' + context.itemId, JSON.stringify(printerOptions)
+      //     ).catch(error => { 
+      //       console.log(error)
+      //       setShouldLoad(false)
+      //     }).finally(() => { 
+      //       // setShouldLoad(false)
+      //     });
+      //     console.log("Option: ", printerOptions.value)
+      //   }
+      // }, [printerOptions])
     
 
     const handleClick = () => {
-        const nameVal = nameRef.current.value
+        // const nameVal = nameRef.current.value
+        console.log("countVal", parseInt(countRef.current.value))
         const countVal = parseInt(countRef.current.value)
-        handleInput(nameVal, countVal)
+        handleInput(countVal)
     }
 
     return (
@@ -326,8 +324,43 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 <div className="col">
                     <Button onClick={handleTotalReset} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Reset Total</Button>
                 </div>
-                <div className="col">
-                    <p style={{color: "grey"}}>Version 2.1.1</p>
+                <div className="col" style={{color: 'white'}}>
+                    <ExpandCollapse
+                    // className="ExpandCollapse-stories-module_storybookExpandCollapse"
+                    style={{color: 'white'}}
+                    title="Plan Details"
+                    size="small"
+                    >
+                        <div className="row">
+                            <div className="col">
+                                <p style={{color: 'black'}}>Current Plan</p>
+                            </div>
+                            <div className="col">
+                                <Label text="Free" color="positive" kind="line"></Label>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                            <p style={{color: 'black'}}>Batches</p>
+                            </div>
+                            <div className="col">
+                              <Label text={54} color="primary" kind="line"></Label>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                            <p style={{color: 'black'}}>Limit</p>
+                            </div>
+                            <div className="col">
+                                <Label text="100" color="negative" kind="line"></Label>
+                            </div>
+                        </div>
+                        <div className="row">
+                          <div className="col">
+                            <p style={{color: "grey"}}>Version 2.1.1</p>
+                          </div>
+                        </div>
+                    </ExpandCollapse>
                 </div>
             </div>
             <div className="row">
@@ -351,10 +384,10 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 </div>
             </div>
             <div className="row pt-4">
-                <div className="col">
-                    <Dropdown placeholder="Printer" onChange={evt => handlePrinterSelection(evt)} options={printerList} value={printerOptions}></Dropdown>
-                    <TextField disabled={true} ref={nameRef} type="text" placeholder="Batch name" />
-                </div>
+                {/* <div className="col">
+                    { <Dropdown placeholder="Printer" onChange={evt => handlePrinterSelection(evt)} options={printerList} value={printerOptions}></Dropdown> }
+                    { <TextField disabled={true} ref={nameRef} type="text" placeholder="Batch name" /> }
+                </div> */}
                 <div className="col">
                     <TextField ref={countRef} type="number" value="0" />  
                 </div>
