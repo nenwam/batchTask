@@ -51,7 +51,7 @@ const ListItem = ({itemName, itemCount, handleDelete}) => {
                 <div className="col-5">
                     <div className="row">
                         <div className="col">
-                            <Label text={itemCount} color={Label.colors.Dark} kind={Label.kinds.LINE}></Label>
+                            <Label text={itemCount} color={itemCount >= 0 ? Label.colors.Dark : Label.colors.NEGATIVE} kind={Label.kinds.LINE}></Label>
                         </div>
                         <div className="col">
                             <IconButton icon={Erase} color onClick={() => handleDelete(itemName, itemCount, isChecked)}></IconButton>
