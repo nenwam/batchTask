@@ -319,6 +319,12 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         handleInput(nameVal, countVal)
     }
 
+    const handleDeductClick = () => {
+      const nameVal = nameRef.current.value
+      const countVal = parseInt(countRef.current.value)
+      handleInput(nameVal, -countVal)
+    }
+
     return (
         <div className="container">
             {console.log("Loading Remount")}
@@ -358,8 +364,11 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 <div className="col">
                     <TextField ref={countRef} type="number" value="0" />  
                 </div>
-                <div className="col">
+                <div className="col-1">
                     <Button disabled={shouldLoad ? true : false} onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
+                </div>
+                <div className="col">
+                    <Button disabled={shouldLoad ? true : false} onClick={handleDeductClick} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Deduct</Button>
                 </div>
                 <div className="col-1">
                     { shouldLoad ? <Loader size={Loader.sizes.SMALL}></Loader> : null }
