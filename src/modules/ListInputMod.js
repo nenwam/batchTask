@@ -23,44 +23,48 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     const countRef = useRef();
     const printerList = useMemo(() => ([
         {
-            label: "Printer 1",
+            label: "Printer 1 (LEC2-640)",
             value: "printer1"
         },
         {
-            label: "Printer 2",
+            label: "Printer 2 (LEC2-640)",
             value: "printer2",
         },
         {
-            label: "Printer 3",
+            label: "Printer 3 (LEC2-640)",
             value: "printer3"
         },
         {
-            label: "Printer 4",
+            label: "Printer 4 (LEC2-640)",
             value: "printer4"
         },
         {
-            label: "Printer 5",
+            label: "Printer 5 (LEC2-640)",
             value: "printer5"
         },
         {
-            label: "Printer 6",
+            label: "Printer 6 (MG-640)",
             value: "printer6"
         },
         {
-          label: "Printer 7",
+          label: "Printer 7 (MG-640)",
           value: "printer7"
         },
         {
-            label: "Printer 8",
+            label: "Printer 8 (MG-640)",
             value: "printer8"
         },
         {
-          label: "Printer 9",
+          label: "Printer 9 (MG-640)",
           value: "printer9"
         },
         {
-          label: "Printer 10",
+          label: "Printer 10 (MG-640)",
           value: "printer10"
+        },
+        {
+          label: "Printer 11 (LG-640)",
+          value: "printer11"
         },
     ]), []);
     
@@ -357,7 +361,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 </div>
             </div>
             <div className="row pt-4">
-                <div className="col">
+                <div className="col-4">
                     <Dropdown placeholder="Printer" onChange={evt => handlePrinterSelection(evt)} options={printerList} value={printerOptions}></Dropdown>
                     <TextField disabled={true} ref={nameRef} type="text" placeholder="Batch name" />
                 </div>
