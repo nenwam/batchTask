@@ -6,11 +6,13 @@ import List from "./List"
 
 const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
+// monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w")
 const storageInstance = monday.storage.instance;
 
 const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTotalFunction, selectedVal, printerVal, disabledCheck}) => {
     const [context, setContext] = useState()
     console.log("Context from parent: ", context)
+    const [isInitialized, setIsInitialized] = useState(false); // NEW
     const [listItems, setListItems] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [selectedOption, setSelectedOption] = useState({}); 
@@ -154,6 +156,53 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         
       }, [context])
 
+    // NEW
+    // New useEffect to fetch existing value from the output column
+    useEffect(() => {
+      if (selectedOption && context) {
+        // Fetch the existing value from the selected output column for the current item
+        const itemId = context.itemId;
+        const columnId = selectedOption.value;
+
+        // Build the query to get the column value
+        const query = `query {
+          items (ids: ${itemId}) {
+            column_values (ids: "${columnId}") {
+              value
+              text
+            }
+          }
+        }`;
+
+        monday.api(query)
+          .then((res) => {
+            const columnValue = res.data.items[0].column_values[0].value;
+            if (columnValue) {
+              // Parse the value (it might be JSON)
+              let existingCount = 0;
+              try {
+                existingCount = JSON.parse(columnValue);
+              } catch (e) {
+                existingCount = parseInt(columnValue);
+              }
+              if (isNaN(existingCount)) {
+                existingCount = 0;
+              }
+              setTotalCount(existingCount);
+            } else {
+              setTotalCount(0);
+            }
+          })
+          .catch((err) => {
+            console.error("Error fetching column value: ", err);
+          })
+          .finally(() => {
+            setIsInitialized(true);
+          });
+      }
+    }, [selectedOption, context]);
+
+
 
     const handleInput = (name, count) => {
         console.log("count: ", totalCount)
@@ -249,7 +298,8 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
       }, [listItems]);
 
       useEffect(() => {
-        if (context) {
+        if (isInitialized) {
+          if (context) {
             // setShouldLoad(true)
             storageInstance.setItem('totalCount_' + context.itemId, totalCount.toString())
             .catch(error => { 
@@ -278,7 +328,8 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 console.log("Error updating column: ", err);
               });
           }
-      }, [totalCount])
+        }        
+      }, [totalCount, isInitialized])
     
       // Update selectedOption in the board storage when it changes
       useEffect(() => {
