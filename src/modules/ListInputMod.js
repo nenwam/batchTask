@@ -5,8 +5,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import List from "./List"
 
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
-// monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w")
+// monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
+monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI3Mjk5MDQ5NiwiYWFpIjoxMSwidWlkIjozNjI5NTI0NywiaWFkIjoiMjAyMy0wOC0wM1QyMToyMjozNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI3MTA0ODYsInJnbiI6InVzZTEifQ.XIrSWOWgg3U7oRd9zrKzL0WAr8Peo5b4ZIU1vfw0T2w")
 const storageInstance = monday.storage.instance;
 
 const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTotalFunction, selectedVal, printerVal, disabledCheck}) => {
@@ -23,6 +23,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     const [colOptions, setColOptions] = useState([])
     const nameRef = useRef();
     const countRef = useRef();
+    const [multiplier, setMultiplier] = useState(1);
     const printerList = useMemo(() => ([
         {
             label: "Printer 1 (LEC2-640)",
@@ -204,27 +205,32 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
 
 
 
-    const handleInput = (name, count) => {
-        console.log("count: ", totalCount)
-        const countAsNum = parseInt(count)
+      const handleInput = (name, count) => {
+        console.log("count: ", totalCount);
+        const countAsNum = parseInt(count);
         
-        setTotalCount(prevTotalCount => {
-          console.log("new total: ", prevTotalCount)
-          return parseInt(prevTotalCount) + countAsNum 
-        })
-        const currentDate = new Date()
-        const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true})
-        const uniqueKey = Math.random().toString(36).substr(2, 9);
-        const printerDisplay = printerOptions.label == undefined ? "Printer N/A" : printerOptions.label
-        const itemDisplayPos = "B" + (listItems.length + 1) + " | " + currentTime + " - " + 
-          (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear() + "\n | " + printerDisplay
-        const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: itemDisplayPos, itemCount: countAsNum };
-        console.log("Key: ", uniqueKey)
-        setListItems([...listItems, newItem])
-        
-        
+        // Loop to add multiple batches
+        const newItems = [];
+        for (let i = 0; i < multiplier; i++) { // NEW: Loop based on multiplier
+            const totalToAdd = countAsNum; // Each batch will have the same quantity
+            const currentDate = new Date();
+            const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true});
+            const uniqueKey = Math.random().toString(36).substr(2, 9);
+            const printerDisplay = printerOptions.label == undefined ? "Printer N/A" : printerOptions.label;
+            const itemDisplayPos = "B" + (listItems.length + (i + 1)) + " | " + currentTime + " - " + 
+                (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear() + "\n | " + printerDisplay;
+            
+            newItems.push({ uniqueKey, itemName: itemDisplayPos, itemCount: totalToAdd }); // Create new item for each batch
+        }
     
-        console.log("handleInput Option: ", selectedOption)
+        setListItems([...listItems, ...newItems]); // Add all new items at once
+    
+        setTotalCount(prevTotalCount => {
+            console.log("new total: ", prevTotalCount);
+            return parseInt(prevTotalCount) + (countAsNum * multiplier); // Update total count
+        });
+    
+        console.log("handleInput Option: ", selectedOption);
       }
     
       const handleTotalReset = () => {
@@ -417,7 +423,20 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                     <TextField disabled={true} ref={nameRef} type="text" placeholder="Batch name" />
                 </div>
                 <div className="col">
+                  <div className="row">
+                    <p>Multiplier</p>
+                  </div>
+                  <div className="row">
+                    <TextField type="number" value={multiplier} onChange={e => setMultiplier(parseInt(e) || 1)} placeholder="Multiplier" /> {/* NEW: Input for multiplier */}
+                  </div>
+                </div>
+                <div className="col">
+                  <div className="row">
+                    <p>Quantity</p>
+                  </div>
+                  <div className="row">
                     <TextField ref={countRef} type="number" value="0" />  
+                  </div>
                 </div>
                 <div className="col-1">
                     <Button disabled={shouldLoad ? true : false} onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
