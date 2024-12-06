@@ -1,11 +1,11 @@
 import React from "react";
-import { TextField, Button, Label, Dropdown, Loader, Divider } from "monday-ui-react-core"
+import { TextField, Button, Label, Dropdown, Loader, Divider, Dialog, DialogContentContainer, IconButton, ExpandCollapse } from "monday-ui-react-core"
 import mondaySdk from "monday-sdk-js";
 import { useState, useEffect, useRef, useMemo } from "react";
 import List from "./List"
+import { Info } from "monday-ui-react-core/icons";
 
 const monday = mondaySdk();
-monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
 const storageInstance = monday.storage.instance;
 
 const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTotalFunction, selectedVal, printerVal, disabledCheck}) => {
@@ -13,12 +13,14 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     console.log("Context from parent: ", context)
     const [listItems, setListItems] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
+    const [totalBatches, setTotalBatches] = useState(null); // Initialize as null instead of 0
     const [selectedOption, setSelectedOption] = useState({}); 
     const [printerOptions, setPrinterOptions] = useState({})
     const [optionSelected, setOptionSelected] = useState(false);
     const [shouldLoad, setShouldLoad] = useState(false);
     const [initialShouldLoad, setInitialShouldLoad] = useState(false);
     const [colOptions, setColOptions] = useState([])
+    const [batchesQuota, setBatchesQuota] = useState(null);
     const nameRef = useRef();
     const countRef = useRef();
     const printerList = useMemo(() => ([
@@ -68,6 +70,32 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         },
     ]), []);
     
+    useEffect(() => {
+      const query = `query {
+        app_subscription {
+          plan_id
+          is_trial
+          billing_period
+          days_left
+        }
+      }`;
+
+      monday.api(query)
+        .then(res => {
+          console.log("App subscription data:", res);
+          if (res.data.app_subscription && Object.keys(res.data.app_subscription).length > 0) {
+            console.log("App subscription found, setting quota to ", res.data.app_subscription.plan_id)
+            setBatchesQuota(res.data.app_subscription.plan_id);
+          } else {
+            console.log("No app subscription found, setting quota to 100")
+            setBatchesQuota(100);
+          }
+        })
+        .catch(err => {
+          console.log("Error fetching app subscription:", err);
+          setBatchesQuota(100);
+        });
+    }, []);
     
     useEffect(() => {
         console.log("----App.js UseEffect #1----")
@@ -79,35 +107,41 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
           console.log("useEffect storage res: ", res)
           setContext(res.data);
     
-          // setShouldLoad(true)
-    
-          storageInstance.getItem('listItems_' + res.data.itemId).then(result1 => {
-            setListItems(JSON.parse(result1.data.value) || []);  
-            return storageInstance.getItem('listItems_' + res.data.itemId)
-          }).then(result2 => {
-            console.log("Loading Initial...")
-            setListItems(JSON.parse(result2.data.value) || []);
-            return storageInstance.getItem('totalCount_' + res.data.itemId)
-          }).then(result3 => {
-            const parsedCount = parseInt(result3.data.value)
-            setTotalCount(parsedCount || 0);
-            return storageInstance.getItem('selectedOption_'/* + res.data.itemId*/)
-          }).then(result4 => { 
-            setSelectedOption(JSON.parse(result4.data.value) || []);
-            return storageInstance.getItem('printerOption_' + res.data.itemId)
-          }).then(result5 => { 
-            setPrinterOptions(JSON.parse(result5.data.value) || []);
-          }).catch(error => { 
-            console.log(error)
-            // setShouldLoad(false)
-          }).finally(() => { 
-            // setShouldLoad(false)
-          })
-
-        console.log("ListInput: ", context)
-    
+          // Get all storage items in parallel
+          Promise.all([
+            storageInstance.getItem('listItems_' + res.data.itemId),
+            storageInstance.getItem('totalCount_' + res.data.itemId),
+            storageInstance.getItem('selectedOption_'),
+            storageInstance.getItem('printerOption_' + res.data.itemId),
+            storageInstance.getItem('totalBatches')
+          ]).then(([listItemsResult, totalCountResult, selectedOptionResult, printerOptionsResult, totalBatchesResult]) => {
+            setListItems(JSON.parse(listItemsResult.data.value) || []);
+            setTotalCount(parseInt(totalCountResult.data.value) || 0);
+            setSelectedOption(JSON.parse(selectedOptionResult.data.value) || []);
+            setPrinterOptions(JSON.parse(printerOptionsResult.data.value) || []);
+            const parsedBatches = parseInt(totalBatchesResult.data.value);
+            setTotalBatches(isNaN(parsedBatches) ? 0 : parsedBatches);
+          }).catch(error => {
+            console.log("Error fetching storage items:", error);
+          });
         });
-    
+        
+        // Get initial total batches only if not already set
+        if (totalBatches === null) {
+          storageInstance.getItem('totalBatches')
+            .then(result => {
+              if (result && result.data && result.data.value) {
+                const parsedBatches = parseInt(result.data.value);
+                setTotalBatches(isNaN(parsedBatches) ? 0 : parsedBatches);
+              } else {
+                setTotalBatches(0);
+              }
+            })
+            .catch(error => {
+              console.log("Error getting initial total batches:", error);
+              setTotalBatches(0);
+            });
+        }
         
       }, []);
 
@@ -163,6 +197,10 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
           console.log("new total: ", prevTotalCount)
           return parseInt(prevTotalCount) + countAsNum 
         })
+
+        // Increment total batches counter when adding a new batch
+        setTotalBatches(prevTotalBatches => prevTotalBatches + 1);
+
         const currentDate = new Date()
         const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true})
         const uniqueKey = Math.random().toString(36).substr(2, 9);
@@ -279,6 +317,19 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
               });
           }
       }, [totalCount])
+
+      // Update total batches in board storage when it changes
+      useEffect(() => {
+        if (totalBatches !== null) {
+          storageInstance.setItem('totalBatches', totalBatches.toString())
+            .then(() => {
+              console.log("Successfully stored total batches:", totalBatches);
+            })
+            .catch(error => {
+              console.log("Error storing total batches:", error);
+            });
+        }
+      }, [totalBatches]);
     
       // Update selectedOption in the board storage when it changes
       useEffect(() => {
@@ -321,6 +372,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         const nameVal = nameRef.current.value
         const countVal = parseInt(countRef.current.value)
         handleInput(nameVal, countVal)
+        monday.execute("valueCreatedForUser");
     }
 
     const handleDeductClick = () => {
@@ -336,8 +388,36 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 <div className="col">
                     <Button onClick={handleTotalReset} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Reset Total</Button>
                 </div>
-                <div className="col">
-                    <p style={{color: "grey"}}>Version 2.1.1</p>
+                <div className="col d-flex align-items-center justify-content-end">
+                    <p style={{color: "grey", marginBottom: 0, marginRight: "8px"}}>Version 2.1.1</p>
+                    <Dialog
+                        content={
+                            <DialogContentContainer>
+                                <h5>Quick Start Guide</h5>
+                                <p>1. Select a column to track your total.</p>
+                                <p>(Ensure this column is a number type and empty)</p>
+                                <p>2. Select a printer from the dropdown.</p>
+                                <p>3. Add or deduct batches from the input fields.</p>
+                            </DialogContentContainer>
+                        }
+                        hideTrigger={['click']}
+                        modifiers={[
+                            {
+                                name: 'preventOverflow',
+                                options: {
+                                    mainAxis: false
+                                }
+                            }
+                        ]}
+                        position="left"
+                        showTrigger={['click']}
+                    >
+                        <IconButton
+                            active
+                            icon={Info}
+                            kind="secondary"
+                        />
+                    </Dialog>
                 </div>
             </div>
             <div className="row">
@@ -346,18 +426,29 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 </div>  
                 <div className="col-3">
                     <div className="row">
-                        {/* <div className="col">
-                            <h4>Total</h4>
-                        </div> */}
                         <div className="col">
                             <Label text={totalCount}></Label>
                         </div>
                     </div>
-                    
-                    
                 </div>
                 <div className="col-6">
-                    <Dropdown placeholder="Target column" onChange={evt => handleOptionsSelection(evt)} options={colOptions} value={selectedOption}></Dropdown>
+                    <div className="row">
+                        <div className="col">
+                          <ExpandCollapse
+                            title="Plan Details"
+                            className="monday-style-expand-collapse"
+                          >
+                            <Label text={`Total Batches: ${totalBatches}`} />
+                            {batchesQuota && <Label text={`Batches Quota: ${batchesQuota}`} />}
+                          </ExpandCollapse>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                          <Dropdown placeholder="Target column" onChange={evt => handleOptionsSelection(evt)} options={colOptions} value={selectedOption}></Dropdown>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
             <div className="row pt-4">
@@ -365,11 +456,12 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                     <Dropdown placeholder="Printer" onChange={evt => handlePrinterSelection(evt)} options={printerList} value={printerOptions}></Dropdown>
                     <TextField disabled={true} ref={nameRef} type="text" placeholder="Batch name" />
                 </div>
-                <div className="col">
+                <div className="col-3">
                     <TextField ref={countRef} type="number" value="0" />  
                 </div>
-                <div className="col-1">
-                    <Button disabled={shouldLoad ? true : false} onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
+               
+                <div className="col">
+                    <Button disabled={shouldLoad || (batchesQuota && totalBatches >= batchesQuota)} onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
                 </div>
                 <div className="col">
                     <Button disabled={shouldLoad ? true : false} onClick={handleDeductClick} size={Button.sizes.SMALL} color={Button.colors.NEGATIVE}>Deduct</Button>

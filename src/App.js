@@ -3,68 +3,71 @@ import "./App.css";
 import mondaySdk from "monday-sdk-js";
 import "monday-ui-react-core/dist/main.css";
 import ListInputMod from "./modules/ListInputMod.js";
+import { Toast } from "monday-ui-react-core";
 
 const monday = mondaySdk();
-const redirect_uri = "https://04b49b30074a.ngrok.app/oauth/token";
-const client_id = "eb18d6836553020a3107559d979d31a8";
-const client_secret = "ae0b0f705f2a9d99967c68fe1e61f308";
 
 const App = () => {
-  const [token, setToken] = useState(null);
+  const [context, setContext] = useState(null);
+  const [isViewOnly, setIsViewOnly] = useState(false);
+  const [showWelcomeToast, setShowWelcomeToast] = useState(false);
+  const [showViewerToast, setShowViewerToast] = useState(false);
 
   useEffect(() => {
-    // Check if token is already stored
-    const storedToken = sessionStorage.getItem("mondayToken");
-    if (storedToken) {
-      setToken(storedToken);
-      monday.setToken(storedToken);
-      console.log("Token already stored");
-    } else {
-      // Redirect to OAuth authorization URL
-      window.location.href = `https://auth.monday.com/oauth2/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code`;
-    }
-  }, []);
+    // Initialize the app and get context
+    monday.listen("context", res => {
+      setContext(res.data);
+    });
 
-  useEffect(() => {
-    // Handle OAuth callback
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
-    if (code && !token) {
-      // Exchange code for access token using the proxy server
-      fetch(redirect_uri, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          client_id: client_id,
-          client_secret: client_secret, // Ensure this is secure
-          code: code,
-          redirect_uri: redirect_uri,
-        }),
+    // Check if user is view-only
+    monday.api(`query { me { is_view_only }}`)
+      .then(res => {
+        if (!res.data || !res.data.me) {
+          console.error('Invalid API response:', res);
+          return;
+        }
+        setIsViewOnly(res.data.me.is_view_only);
+        if (res.data.me.is_view_only) {
+          setShowViewerToast(true);
+        } else {
+          setShowWelcomeToast(true);
+        }
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.access_token) {
-            setToken(data.access_token);
-            sessionStorage.setItem("mondayToken", data.access_token);
-            monday.setToken(data.access_token);
-            console.log("Token received and stored");
-            // Clear the URL to prevent re-triggering
-            window.history.replaceState({}, document.title, "/");
-          } else {
-            console.error("Failed to receive access token:", data);
-          }
-        })
-        .catch((error) => console.error("Error fetching token:", error));
-    }
-  }, [token]);
+      .catch(err => {
+        console.error('Error fetching view-only status:', err);
+        setIsViewOnly(true);
+        setShowViewerToast(true);
+      });
+  }, []);
 
   return (
     <div className="App container">
-      <div className="row mt-5">
-        <div className="col-12 py-3 mt-5">
-          <ListInputMod />
+      {showViewerToast && (
+        <Toast
+          open={showViewerToast}
+          type={Toast.types.NEGATIVE}
+          onClose={() => setShowViewerToast(false)}
+        >
+          As a viewer, you are unable to use this app.
+        </Toast>
+      )}
+      <div className="container">
+        <div className="row">
+          {showWelcomeToast && (
+            <Toast
+              open={showWelcomeToast}
+              type={Toast.types.POSITIVE} 
+              autoHideDuration={15000}
+              onClose={() => setShowWelcomeToast(false)}
+            >
+              Welcome! Check out our <a href="https://rallyessentials.com/documentation/" target="_blank" rel="noopener noreferrer" style={{color: 'inherit', textDecoration: 'underline'}}> documentation </a> to help you get started.
+            </Toast>
+          )}
+        </div>
+        <div className="row">
+          <div className="col-12">
+            <ListInputMod />
+          </div>
         </div>
       </div>
     </div>
