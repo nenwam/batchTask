@@ -8,67 +8,19 @@ import { Info } from "monday-ui-react-core/icons";
 const monday = mondaySdk();
 const storageInstance = monday.storage.instance;
 
-const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTotalFunction, selectedVal, printerVal, disabledCheck}) => {
+const ListInputMod = ({dropdownHandler, clickFunction, resetTotalFunction, selectedVal, disabledCheck}) => {
     const [context, setContext] = useState()
     console.log("Context from parent: ", context)
     const [listItems, setListItems] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [totalBatches, setTotalBatches] = useState(null); // Initialize as null instead of 0
     const [selectedOption, setSelectedOption] = useState({}); 
-    const [printerOptions, setPrinterOptions] = useState({})
     const [optionSelected, setOptionSelected] = useState(false);
     const [shouldLoad, setShouldLoad] = useState(false);
     const [initialShouldLoad, setInitialShouldLoad] = useState(false);
     const [colOptions, setColOptions] = useState([])
     const [batchesQuota, setBatchesQuota] = useState(null);
-    const nameRef = useRef();
     const countRef = useRef();
-    const printerList = useMemo(() => ([
-        {
-            label: "Printer 1 (LEC2-640)",
-            value: "printer1"
-        },
-        {
-            label: "Printer 2 (LEC2-640)",
-            value: "printer2",
-        },
-        {
-            label: "Printer 3 (LEC2-640)",
-            value: "printer3"
-        },
-        {
-            label: "Printer 4 (LEC2-640)",
-            value: "printer4"
-        },
-        {
-            label: "Printer 5 (LEC2-640)",
-            value: "printer5"
-        },
-        {
-            label: "Printer 6 (MG-640)",
-            value: "printer6"
-        },
-        {
-          label: "Printer 7 (MG-640)",
-          value: "printer7"
-        },
-        {
-            label: "Printer 8 (MG-640)",
-            value: "printer8"
-        },
-        {
-          label: "Printer 9 (MG-640)",
-          value: "printer9"
-        },
-        {
-          label: "Printer 10 (MG-640)",
-          value: "printer10"
-        },
-        {
-          label: "Printer 11 (LG-640)",
-          value: "printer11"
-        },
-    ]), []);
     
     useEffect(() => {
       const query = `query {
@@ -112,13 +64,11 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
             storageInstance.getItem('listItems_' + res.data.itemId),
             storageInstance.getItem('totalCount_' + res.data.itemId),
             storageInstance.getItem('selectedOption_'),
-            storageInstance.getItem('printerOption_' + res.data.itemId),
             storageInstance.getItem('totalBatches')
-          ]).then(([listItemsResult, totalCountResult, selectedOptionResult, printerOptionsResult, totalBatchesResult]) => {
+          ]).then(([listItemsResult, totalCountResult, selectedOptionResult, totalBatchesResult]) => {
             setListItems(JSON.parse(listItemsResult.data.value) || []);
             setTotalCount(parseInt(totalCountResult.data.value) || 0);
             setSelectedOption(JSON.parse(selectedOptionResult.data.value) || []);
-            setPrinterOptions(JSON.parse(printerOptionsResult.data.value) || []);
             const parsedBatches = parseInt(totalBatchesResult.data.value);
             setTotalBatches(isNaN(parsedBatches) ? 0 : parsedBatches);
           }).catch(error => {
@@ -189,7 +139,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
       }, [context])
 
 
-    const handleInput = (name, count) => {
+    const handleInput = (count) => {
         console.log("count: ", totalCount)
         const countAsNum = parseInt(count)
         
@@ -204,15 +154,12 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         const currentDate = new Date()
         const currentTime = currentDate.toLocaleTimeString('en-US', {timeStyle: 'short', hour12: true})
         const uniqueKey = Math.random().toString(36).substr(2, 9);
-        const printerDisplay = printerOptions.label == undefined ? "Printer N/A" : printerOptions.label
         const itemDisplayPos = "B" + (listItems.length + 1) + " | " + currentTime + " - " + 
-          (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear() + "\n | " + printerDisplay
+          (currentDate.getMonth() + 1) + "/" + currentDate.getDate() + "/" + currentDate.getFullYear()
         const newItem = { uniqueKey: Math.random().toString(36).substr(2, 9), itemName: itemDisplayPos, itemCount: countAsNum };
         console.log("Key: ", uniqueKey)
         setListItems([...listItems, newItem])
         
-        
-    
         console.log("handleInput Option: ", selectedOption)
       }
     
@@ -222,10 +169,6 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     
       const handleOptionsSelection = (evt) => {
         setSelectedOption(evt) 
-      }
-    
-      const handlePrinterSelection = (evt) => {
-        setPrinterOptions(evt)
       }
     
       const handleItemDelete = (itemName, itemCount, isChecked) => {
@@ -349,36 +292,16 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         
         
       }, [selectedOption]);
-    
-      // Update printerOptions in the board storage when it changes
-      useEffect(() => {
-        console.log("----App.js UseEffect #6----")
-        if (context) {
-          console.log("Context: ", context)
-        //   setShouldLoad(true)
-          storageInstance.setItem('printerOption_' + context.itemId, JSON.stringify(printerOptions)
-          ).catch(error => { 
-            console.log(error)
-            setShouldLoad(false)
-          }).finally(() => { 
-            // setShouldLoad(false)
-          });
-          console.log("Option: ", printerOptions.value)
-        }
-      }, [printerOptions])
-    
 
     const handleClick = () => {
-        const nameVal = nameRef.current.value
         const countVal = parseInt(countRef.current.value)
-        handleInput(nameVal, countVal)
+        handleInput(countVal)
         monday.execute("valueCreatedForUser");
     }
 
     const handleDeductClick = () => {
-      const nameVal = nameRef.current.value
-      const countVal = parseInt(countRef.current.value)
-      handleInput(nameVal, -countVal)
+        const countVal = parseInt(countRef.current.value)
+        handleInput(-countVal)
     }
 
     return (
@@ -396,8 +319,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                                 <h5>Quick Start Guide</h5>
                                 <p>1. Select a column to track your total.</p>
                                 <p>(Ensure this column is a number type and empty)</p>
-                                <p>2. Select a printer from the dropdown.</p>
-                                <p>3. Add or deduct batches from the input fields.</p>
+                                <p>2. Add or deduct batches from the input fields.</p>
                             </DialogContentContainer>
                         }
                         hideTrigger={['click']}
@@ -453,13 +375,8 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
             </div>
             <div className="row pt-4">
                 <div className="col-4">
-                    <Dropdown placeholder="Printer" onChange={evt => handlePrinterSelection(evt)} options={printerList} value={printerOptions}></Dropdown>
-                    <TextField disabled={true} ref={nameRef} type="text" placeholder="Batch name" />
-                </div>
-                <div className="col-3">
                     <TextField ref={countRef} type="number" value="0" />  
                 </div>
-               
                 <div className="col">
                     <Button disabled={shouldLoad || (batchesQuota && totalBatches >= batchesQuota)} onClick={handleClick} size={Button.sizes.SMALL} color={Button.colors.POSITIVE}>Add</Button>
                 </div>
