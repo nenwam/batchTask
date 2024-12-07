@@ -320,6 +320,10 @@ const ListInputMod = ({dropdownHandler, clickFunction, resetTotalFunction, selec
                                 <p>1. Select a column to track your total.</p>
                                 <p>(Ensure this column is a number type and empty)</p>
                                 <p>2. Add or deduct batches from the input fields.</p>
+                                <div style={{marginTop: "20px", fontSize: "12px"}}>
+                                    <a href="https://rallyessentials.com/batchtask/terms-of-service/" target="_blank" rel="noopener noreferrer" style={{marginRight: "15px"}}>Terms of Service</a>
+                                    <a href="https://rallyessentials.com/batchtask/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                                </div>
                             </DialogContentContainer>
                         }
                         hideTrigger={['click']}
