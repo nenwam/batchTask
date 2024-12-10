@@ -70,7 +70,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
           value: "printer11"
         },
         {
-          label: "Printer 12 (LG-640)",
+          label: "Printer 12 (LG-540)",
           value: "printer12"
         },
         {
