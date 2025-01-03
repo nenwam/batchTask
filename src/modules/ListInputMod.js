@@ -8,6 +8,17 @@ import { Info } from "monday-ui-react-core/icons";
 const monday = mondaySdk();
 const storageInstance = monday.storage.instance;
 
+// Helper function to validate numeric inputs
+const isValidNumericId = (id) => {
+  return typeof id === 'number' && Number.isInteger(id) && id > 0;
+};
+
+// Helper function to validate column selection
+const isValidColumnOption = (option, availableColumns) => {
+  if (!option || !option.value) return false;
+  return availableColumns.some(col => col.value === option.value);
+};
+
 const ListInputMod = ({dropdownHandler, clickFunction, resetTotalFunction, selectedVal, disabledCheck}) => {
     const [context, setContext] = useState()
     console.log("Context from parent: ", context)
@@ -101,7 +112,14 @@ const ListInputMod = ({dropdownHandler, clickFunction, resetTotalFunction, selec
 
             console.log("Context: ", context)
             const boardId = context.boardId;
-            console.log("using boardID: ", context.boardId)
+            
+            // Validate boardId before using in query
+            if (!isValidNumericId(boardId)) {
+              console.error("Invalid board ID");
+              return;
+            }
+            
+            console.log("using boardID: ", boardId)
             
             const query = `query {
             boards(ids: ${boardId}) {
@@ -168,7 +186,12 @@ const ListInputMod = ({dropdownHandler, clickFunction, resetTotalFunction, selec
       }
     
       const handleOptionsSelection = (evt) => {
-        setSelectedOption(evt) 
+        // Validate that the selected option is one of our known columns
+        if (isValidColumnOption(evt, colOptions)) {
+          setSelectedOption(evt);
+        } else {
+          console.error("Invalid column selection");
+        }
       }
     
       const handleItemDelete = (itemName, itemCount, isChecked) => {
@@ -243,10 +266,23 @@ const ListInputMod = ({dropdownHandler, clickFunction, resetTotalFunction, selec
 
         if (selectedOption && context && totalCount != null) {
             console.log("Inner Context: ", selectedOption)
-            const boardId = context.boardId
+            const boardId = context.boardId;
+            const itemId = context.itemId;
+            
+            // Validate IDs and selected column before constructing query
+            if (!isValidNumericId(boardId) || !isValidNumericId(itemId)) {
+              console.error("Invalid board ID or item ID");
+              return;
+            }
+
+            if (!isValidColumnOption(selectedOption, colOptions)) {
+              console.error("Invalid column selection");
+              return;
+            }
+
             console.log("using boardID: ", boardId)
             const query = `mutation {
-              change_simple_column_value (board_id: ${boardId}, item_id: ${context.itemId}, column_id: "${selectedOption.value}", value: "${JSON.stringify(totalCount)}") {
+              change_simple_column_value (board_id: ${boardId}, item_id: ${itemId}, column_id: "${selectedOption.value}", value: "${JSON.stringify(totalCount)}") {
                 id
               }
             }`;
