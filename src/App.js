@@ -60,7 +60,7 @@ const App = () => {
               autoHideDuration={15000}
               onClose={() => setShowWelcomeToast(false)}
             >
-              Welcome! Check out our <a href="https://rallyessentials.com/documentation/" target="_blank" rel="noopener noreferrer" style={{color: 'inherit', textDecoration: 'underline'}}> documentation </a> to help you get started.
+              Welcome! Check out our  <a href="https://rallyessentials.com/documentation/" target="_blank" rel="noopener noreferrer" style={{color: 'inherit', textDecoration: 'underline'}}>  documentation  </a>  to help you get started.
             </Toast>
           )}
         </div>
