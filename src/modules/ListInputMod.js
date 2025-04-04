@@ -24,6 +24,9 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     const [colOptions, setColOptions] = useState([])
     const countRef = useRef();
     const [multiplier, setMultiplier] = useState(1);
+    // NEW: Add states for printer dropdown
+    const [printerOptions, setPrinterOptions] = useState([]);
+    const [selectedPrinter, setSelectedPrinter] = useState({});
 
     useEffect(() => {
         console.log("----App.js UseEffect #1----")
@@ -78,6 +81,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                     id
                     title
                     type
+                    settings_str
                 }
             }
             }`;
@@ -91,6 +95,24 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 if (printerColumn) {
                   setPrinterColId(printerColumn.id);
                   console.log("Found Printer column ID:", printerColumn.id);
+                  
+                  // NEW: Fetch printer column options if it's a dropdown-type column
+                  if (printerColumn.type === 'color' || printerColumn.type === 'dropdown' || printerColumn.type === 'status') {
+                    try {
+                      // Parse the settings to get the dropdown options
+                      const settings = JSON.parse(printerColumn.settings_str);
+                      if (settings && settings.labels) {
+                        const options = Object.entries(settings.labels).map(([value, label]) => ({
+                          value,
+                          label
+                        }));
+                        setPrinterOptions(options);
+                        console.log("Printer options:", options);
+                      }
+                    } catch (e) {
+                      console.error("Error parsing printer column settings:", e);
+                    }
+                  }
                 } else {
                   console.error("Could not find column named 'Printer'");
                   setPrinterColumnValue("Error: 'Printer' column not found");
@@ -180,6 +202,18 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                  if (printerVal) {
                    setPrinterColumnValue(printerVal);
                    console.log("Fetched Printer Value:", printerVal);
+                   
+                   // NEW: Set the selected printer in the dropdown
+                   // Find matching option from printerOptions based on text
+                   if (printerOptions.length > 0) {
+                     const matchingOption = printerOptions.find(option => 
+                       option.label === printerVal || option.value === printerColumnData.value
+                     );
+                     if (matchingOption) {
+                       setSelectedPrinter(matchingOption);
+                       console.log("Set selected printer:", matchingOption);
+                     }
+                   }
                  } else {
                    setPrinterColumnValue("Printer N/A"); // Set default if empty
                    console.log("Printer column is empty, setting display to 'Printer N/A'.");
@@ -215,7 +249,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
           // We might still want to fetch the printer value if printerColId is known
           // Add separate fetch logic here or modify query if needed
       }
-    }, [selectedOption, context, printerColId]); // Add printerColId dependency
+    }, [selectedOption, context, printerColId, printerOptions]); // Added printerOptions dependency
 
 
 
@@ -252,6 +286,34 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
     
       const handleOptionsSelection = (evt) => {
         setSelectedOption(evt) 
+      }
+    
+      // NEW: Handle printer dropdown selection
+      const handlePrinterSelection = (evt) => {
+        setSelectedPrinter(evt);
+        
+        // Update the printer column in Monday.com
+        if (context && printerColId) {
+          const boardId = context.boardId;
+          const itemId = context.itemId;
+          
+          // Create query to update the printer column
+          const query = `mutation {
+            change_column_value(board_id: ${boardId}, item_id: ${itemId}, column_id: "${printerColId}", value: ${JSON.stringify(JSON.stringify({label: evt.label}))}) {
+              id
+            }
+          }`;
+          
+          monday.api(query)
+            .then((res) => {
+              console.log("Printer column updated successfully:", res);
+              // Update local state to reflect the change
+              setPrinterColumnValue(evt.label);
+            })
+            .catch((err) => {
+              console.error("Error updating printer column:", err);
+            });
+        }
       }
     
       const handleItemDelete = (itemName, itemCount, isChecked) => {
@@ -412,8 +474,16 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
             </div>
             <div className="row pt-4 pb-4">
                 <div className="col-4 d-flex align-items-end">
-                    <div style={{ marginBottom: '0px' }}>
-                      <Label color={Label.colors.PRIMARY} text={"Printer: " + printerColumnValue}></Label>
+                    <div style={{ marginBottom: '0px', width: '100%' }}>
+                      {/* REPLACED: Label with Dropdown */}
+                      <p style={{ marginBottom: '4px' }}>Printer</p>
+                      <Dropdown 
+                        placeholder="Select Printer" 
+                        onChange={handlePrinterSelection} 
+                        options={printerOptions} 
+                        value={selectedPrinter}
+                        disabled={printerOptions.length === 0}
+                      />
                     </div>
                 </div>
                 <div className="col d-flex align-items-end">
