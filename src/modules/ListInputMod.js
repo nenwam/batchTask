@@ -111,11 +111,14 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                       }
                     } catch (e) {
                       console.error("Error parsing printer column settings:", e);
+                      setPrinterOptions([]);
                     }
                   }
                 } else {
                   console.error("Could not find column named 'Printer'");
-                  setPrinterColumnValue("Error: 'Printer' column not found");
+                  setPrinterColId(null);
+                  setPrinterColumnValue("Printer N/A");
+                  setPrinterOptions([]);
                 }
 
                 const filter = 'numbers'  //numbers
@@ -134,6 +137,10 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                 })
             }).catch((err) => {
                 console.log("Error fetching columns: ", err);
+                // Handle API error gracefully
+                setPrinterColId(null);
+                setPrinterColumnValue("Printer N/A");
+                setPrinterOptions([]);
             }).finally(() => {
                 // setShouldLoad(false)
             });
@@ -141,117 +148,152 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
         
       }, [context])
 
-    // NEW
     // Modified useEffect to fetch existing value AND printer value
     useEffect(() => {
-      // Ensure all necessary data is present before querying
-      if (selectedOption?.value && context && printerColId) {
+      // Ensure context is present
+      if (context) {
         const itemId = context.itemId;
-        const targetColumnId = selectedOption.value;
-        const columnsToFetch = [targetColumnId, printerColId]; // Fetch both target and printer columns
-
-        console.log(`Fetching values for columns: ${columnsToFetch.join(', ')} for item: ${itemId}`);
-
-        // Build the query to get column values
-        const query = `query {
-          items (ids: ${itemId}) {
-            column_values (ids: ${JSON.stringify(columnsToFetch)}) {
-              id
-              value
-              text
-            }
+        setIsInitialized(true);
+        
+        // If we have a selected column, fetch its value for total count
+        if (selectedOption?.value) {
+          const targetColumnId = selectedOption.value;
+          let columnsToFetch = [targetColumnId];
+          
+          // Add printer column to fetch if it exists
+          if (printerColId) {
+            columnsToFetch.push(printerColId);
           }
-        }`;
 
-        monday.api(query)
-          .then((res) => {
-            console.log("Target/Printer Column Values Response: ", res);
-            if (res.data?.items?.length > 0 && res.data.items[0].column_values) {
-              const columnValues = res.data.items[0].column_values;
+          console.log(`Fetching values for columns: ${columnsToFetch.join(', ')} for item: ${itemId}`);
 
-              // Process Target Column (Total Count)
-              const targetColumnData = columnValues.find(cv => cv.id === targetColumnId);
-              if (targetColumnData) {
-                const columnValue = targetColumnData.value;
-                if (columnValue) {
-                  let existingCount = 0;
-                  try {
-                    existingCount = JSON.parse(columnValue);
-                  } catch (e) {
-                    existingCount = parseInt(columnValue);
+          // Build the query to get column values
+          const query = `query {
+            items (ids: ${itemId}) {
+              column_values (ids: ${JSON.stringify(columnsToFetch)}) {
+                id
+                value
+                text
+              }
+            }
+          }`;
+
+          monday.api(query)
+            .then((res) => {
+              console.log("Column Values Response: ", res);
+              if (res.data?.items?.length > 0 && res.data.items[0].column_values) {
+                const columnValues = res.data.items[0].column_values;
+
+                // Process Target Column (Total Count)
+                const targetColumnData = columnValues.find(cv => cv.id === targetColumnId);
+                if (targetColumnData) {
+                  const columnValue = targetColumnData.value;
+                  if (columnValue) {
+                    let existingCount = 0;
+                    try {
+                      existingCount = JSON.parse(columnValue);
+                    } catch (e) {
+                      existingCount = parseInt(columnValue);
+                    }
+                    if (isNaN(existingCount)) {
+                      existingCount = 0;
+                    }
+                    setTotalCount(existingCount);
+                    console.log("Fetched Total Count:", existingCount);
+                  } else {
+                    setTotalCount(0); // Reset if column is empty
+                    console.log("Target column is empty, setting total count to 0.");
                   }
-                  if (isNaN(existingCount)) {
-                    existingCount = 0;
-                  }
-                  setTotalCount(existingCount);
-                  console.log("Fetched Total Count:", existingCount);
                 } else {
-                  setTotalCount(0); // Reset if column is empty
-                  console.log("Target column is empty, setting total count to 0.");
+                   setTotalCount(0); // Reset if column data is missing
+                   console.warn("Target column data not found in response.");
+                }
+
+                // Process Printer Column if it exists
+                if (printerColId) {
+                  const printerColumnData = columnValues.find(cv => cv.id === printerColId);
+                  if (printerColumnData) {
+                    // Prefer 'text' for dropdowns/status, fallback to 'value'
+                    const printerVal = printerColumnData.text || (printerColumnData.value ? JSON.parse(printerColumnData.value) : null);
+                    if (printerVal) {
+                      setPrinterColumnValue(printerVal);
+                      console.log("Fetched Printer Value:", printerVal);
+                      
+                      // Set the selected printer in the dropdown
+                      if (printerOptions.length > 0) {
+                        const matchingOption = printerOptions.find(option => 
+                          option.label === printerVal || option.value === printerColumnData.value
+                        );
+                        if (matchingOption) {
+                          setSelectedPrinter(matchingOption);
+                          console.log("Set selected printer:", matchingOption);
+                        }
+                      }
+                    } else {
+                      setPrinterColumnValue("Printer N/A"); // Set default if empty
+                      console.log("Printer column is empty, setting display to 'Printer N/A'.");
+                    }
+                  } else {
+                    setPrinterColumnValue("Printer N/A"); // Set default if column data missing
+                    console.warn("Printer column data not found in response.");
+                  }
                 }
               } else {
-                 setTotalCount(0); // Reset if column data is missing
-                 console.warn("Target column data not found in response.");
-              }
-
-              // Process Printer Column
-              const printerColumnData = columnValues.find(cv => cv.id === printerColId);
-              if (printerColumnData) {
-                 // Prefer 'text' for dropdowns/status, fallback to 'value'
-                 const printerVal = printerColumnData.text || (printerColumnData.value ? JSON.parse(printerColumnData.value) : null);
-                 if (printerVal) {
-                   setPrinterColumnValue(printerVal);
-                   console.log("Fetched Printer Value:", printerVal);
-                   
-                   // NEW: Set the selected printer in the dropdown
-                   // Find matching option from printerOptions based on text
-                   if (printerOptions.length > 0) {
-                     const matchingOption = printerOptions.find(option => 
-                       option.label === printerVal || option.value === printerColumnData.value
-                     );
-                     if (matchingOption) {
-                       setSelectedPrinter(matchingOption);
-                       console.log("Set selected printer:", matchingOption);
-                     }
-                   }
+                 console.error("No items or column values found in response: ", res);
+                 setTotalCount(0);
+                 if (printerColId) {
+                   setPrinterColumnValue("Error Fetching Data");
                  } else {
-                   setPrinterColumnValue("Printer N/A"); // Set default if empty
-                   console.log("Printer column is empty, setting display to 'Printer N/A'.");
+                   setPrinterColumnValue("Printer N/A");
                  }
-              } else {
-                setPrinterColumnValue("Printer N/A"); // Set default if column data missing
-                console.warn("Printer column data not found in response.");
               }
-
-            } else {
-               console.error("No items or column values found in response: ", res);
-               setTotalCount(0);
-               setPrinterColumnValue("Error Fetching Data");
-            }
-          })
-          .catch((err) => {
-            console.error("Error fetching column values: ", err);
-            setTotalCount(0); // Reset on error
-            setPrinterColumnValue("Error Fetching Printer");
-          })
-          .finally(() => {
-            setIsInitialized(true); // Mark as initialized after attempting fetch
-            console.log("Initialization fetch complete.");
-          });
-      } else if (context && !printerColId) {
-          // Handle case where context is loaded but printerColId hasn't been found yet (e.g., column missing)
-          setIsInitialized(true); // Still initialize, but with error state set in the other useEffect
-      } else if (context && !selectedOption?.value) {
-          // Handle case where context is loaded but no target column selected
-          setTotalCount(0); // Reset total count if no target selected
-          setIsInitialized(true);
+            })
+            .catch((err) => {
+              console.error("Error fetching column values: ", err);
+              setTotalCount(0); // Reset on error
+              setPrinterColumnValue("Printer N/A");
+            });
+        } else {
+          // No selected option for target column
+          setTotalCount(0);
           console.log("No target column selected, initializing total count to 0.");
-          // We might still want to fetch the printer value if printerColId is known
-          // Add separate fetch logic here or modify query if needed
+          
+          // Still try to fetch printer info if possible
+          if (printerColId) {
+            const query = `query {
+              items (ids: ${itemId}) {
+                column_values (ids: ["${printerColId}"]) {
+                  id
+                  value
+                  text
+                }
+              }
+            }`;
+            
+            monday.api(query)
+              .then(res => {
+                if (res.data?.items?.length > 0 && res.data.items[0].column_values?.length > 0) {
+                  const printerColumnData = res.data.items[0].column_values[0];
+                  const printerVal = printerColumnData.text || (printerColumnData.value ? JSON.parse(printerColumnData.value) : null);
+                  if (printerVal) {
+                    setPrinterColumnValue(printerVal);
+                  } else {
+                    setPrinterColumnValue("Printer N/A");
+                  }
+                } else {
+                  setPrinterColumnValue("Printer N/A");
+                }
+              })
+              .catch(err => {
+                console.error("Error fetching printer value:", err);
+                setPrinterColumnValue("Printer N/A");
+              });
+          } else {
+            setPrinterColumnValue("Printer N/A");
+          }
+        }
       }
-    }, [selectedOption, context, printerColId, printerOptions]); // Added printerOptions dependency
-
-
+    }, [selectedOption, context, printerColId, printerOptions]);
 
       const handleInput = (count) => {
         const countAsNum = parseInt(count);
@@ -292,7 +334,7 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
       const handlePrinterSelection = (evt) => {
         setSelectedPrinter(evt);
         
-        // Update the printer column in Monday.com
+        // Update the printer column in Monday.com only if the printer column exists
         if (context && printerColId) {
           const boardId = context.boardId;
           const itemId = context.itemId;
@@ -313,6 +355,9 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
             .catch((err) => {
               console.error("Error updating printer column:", err);
             });
+        } else {
+          // Even without a printer column, update the UI for consistency
+          setPrinterColumnValue(evt.label || "Printer N/A");
         }
       }
     
@@ -477,13 +522,17 @@ const ListInputMod = ({dropdownHandler, printerHandler, clickFunction, resetTota
                     <div style={{ marginBottom: '0px', width: '100%' }}>
                       {/* REPLACED: Label with Dropdown */}
                       <p style={{ marginBottom: '4px' }}>Printer</p>
-                      <Dropdown 
-                        placeholder="Select Printer" 
-                        onChange={handlePrinterSelection} 
-                        options={printerOptions} 
-                        value={selectedPrinter}
-                        disabled={printerOptions.length === 0}
-                      />
+                      {printerColId ? (
+                        <Dropdown 
+                          placeholder="Select Printer" 
+                          onChange={handlePrinterSelection} 
+                          options={printerOptions} 
+                          value={selectedPrinter}
+                          disabled={printerOptions.length === 0}
+                        />
+                      ) : (
+                        <Label color={Label.colors.PRIMARY} text="Printer N/A"></Label>
+                      )}
                     </div>
                 </div>
                 <div className="col d-flex align-items-end">
