@@ -8,6 +8,7 @@ const monday = mondaySdk();
 monday.setToken("eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjI5MTI1MjEwNSwiYWFpIjoxMSwidWlkIjo1MDY1MzM4MSwiaWFkIjoiMjAyMy0xMC0yM1QyMToyNzo1Ni4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTkzNTI3OTYsInJnbiI6InVzZTEifQ.IxSCkDC63caJ9dP_HobxQpVMEWXSJUDi-vcyRozQnKA");
 
 const ListItem = ({itemName, itemCount, handleDelete}) => {
+    const [batchNumber, timestamp, printer] = itemName.split('|').map(part => part.trim());
     const [isChecked, setIsChecked] = useState(false);
     // const [context, setContext] = useState();
     // const {context } = parentContext;
@@ -45,13 +46,22 @@ const ListItem = ({itemName, itemCount, handleDelete}) => {
     return (
         <div className="container align-middle">
             <div className="row">
+                
                 <div className="col-7">
-                    <Checkbox className="align-middle" disabled={/*isChecked ? true : */true} /*onChange={() => {setIsChecked(!isChecked); handleTotalCount(!isChecked, parseInt(itemCount)); console.log('---CHECKED---')}}*/ label={itemName}></Checkbox>
-                </div>                
-                <div className="col-5">
                     <div className="row">
+                        <Label kind={Label.kinds.LINE} color={Label.colors.DARK} text={batchNumber}></Label>
+                    </div>
+                    <div className="row">
+                        <Label kind={Label.kinds.LINE} color={Label.colors.PRIMARY} text={timestamp}></Label>
+                    </div>
+                    <div className="row">
+                        <Label kind={Label.kinds.LINE} color={Label.colors.POSITIVE} text={printer}></Label>
+                    </div>
+                </div>                
+                <div className="col-5 my-auto">
+                    <div className="row align-items-center">
                         <div className="col">
-                            <Label text={itemCount} color={itemCount >= 0 ? Label.colors.Dark : Label.colors.NEGATIVE} kind={Label.kinds.LINE}></Label>
+                            <Label text={itemCount >= 0 ? ("+" + itemCount) : itemCount} color={itemCount >= 0 ? Label.colors.POSITIVE : Label.colors.NEGATIVE} kind={Label.kinds.FILL}></Label>
                         </div>
                         <div className="col">
                             <IconButton icon={Erase} color onClick={() => handleDelete(itemName, itemCount, isChecked)}></IconButton>
